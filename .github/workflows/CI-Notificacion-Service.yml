@@ -34,6 +34,9 @@ jobs:
           distribution: temurin
           cache: maven
 
+      - name: Grant execute permission to mvnw
+        run: chmod +x mvnw
+
       - name: Compile
         run: ./mvnw compile -B --no-transfer-progress
 
@@ -60,6 +63,9 @@ jobs:
           java-version: '21'
           distribution: temurin
           cache: maven
+
+      - name: Grant execute permission to mvnw
+        run: chmod +x mvnw
 
       - name: Run tests
         run: ./mvnw test -B --no-transfer-progress
@@ -96,6 +102,9 @@ jobs:
           distribution: temurin
           cache: maven
 
+      - name: Grant execute permission to mvnw
+        run: chmod +x mvnw
+
       - name: Generate coverage report
         run: ./mvnw test -B --no-transfer-progress
 
@@ -111,4 +120,3 @@ jobs:
           name: jacoco-report-run${{ github.run_number }}-${{ github.sha }}
           path: target/site/jacoco/
           retention-days: 7
-
