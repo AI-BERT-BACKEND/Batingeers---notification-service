@@ -12,13 +12,13 @@
     </parent>
 
     <groupId>ai.bert-backend</groupId>
-    <artifactId>academic-service</artifactId>
+    <artifactId>notification-service</artifactId>
     <version>1.0.0</version>
 
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sonar.projectKey>Batingeers---notification-service</sonar.projectKey>
+        <sonar.projectKey>AI-BERT-BACKEND_Batingeers---notification-service</sonar.projectKey>
         <sonar.organization>ai-bert-backend</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
