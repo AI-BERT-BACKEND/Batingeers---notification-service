@@ -1,6 +1,6 @@
 spring:
   application:
-    name: stats-service
+    name: notification-service
 
 management:
   endpoints:
