@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false
+    username: sa
+    password: sa
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: false
+    open-in-view: false
+
+jwt:
+  secret: testSecretKeyForUnitTestsOnlyNotForProductionUse1234567890
+
+services:
+  task-service:
+    url: http://localhost:8082
+  academic-service:
+    url: http://localhost:8081
+  planning-service:
+    url: http://localhost:8084
+  social-service:
+    url: http://localhost:8086
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
