@@ -1,4 +1,4 @@
-##### GIT IGNORE FOR THE BACKEND OF THE TECHCUP PROJECT ####
+##### GIT IGNORE FOR AIBERT PROJECT ####
 
 #### JAVA ####
 *.class
@@ -157,7 +157,6 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
-.mvn/wrapper/maven-wrapper.jar
 .project
 .classpath
 
