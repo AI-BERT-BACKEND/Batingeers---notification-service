@@ -1,4 +1,4 @@
-##### GIT IGNORE FOR THE BACKEND OF THE TECHCUP PROJECT ####
+##### GIT IGNORE FOR AIBERT PROJECT ####
 
 #### JAVA ####
 *.class
@@ -147,7 +147,6 @@ poetry.toml
 pyrightconfig.json
 
 #### MAVEN ####
-.mvn/
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -157,9 +156,9 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
-.mvn/wrapper/maven-wrapper.jar
 .project
 .classpath
+!.mvn/wrapper/
 
 !**/src/main/**/target/
 !**/src/test/**/target/

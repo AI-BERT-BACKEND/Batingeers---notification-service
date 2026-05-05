@@ -10,6 +10,10 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     show-sql: false
     open-in-view: false
+  security:
+    user:
+      name: test
+      password: test
 
 jwt:
   secret: testSecretKeyForUnitTestsOnlyNotForProductionUse1234567890
