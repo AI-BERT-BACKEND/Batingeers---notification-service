@@ -12,6 +12,9 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  REGISTRY_OWNER: ai-bert-backend
+
 permissions:
   contents: read
   checks: write
@@ -173,7 +176,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/batingeers---notification-service
+          images: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers---notification-service
           tags: |
             type=sha,prefix=qa-,format=short
             type=raw,value=qa-latest
@@ -185,7 +188,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/batingeers---notification-service:qa-latest
+          cache-from: type=registry,ref=ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers---notification-service:qa-latest
           cache-to: type=inline
 
   deploy-qa:
@@ -207,4 +210,4 @@ jobs:
         with:
           resourceGroup: aibert-rg
           containerAppName: aibert-notification-service-qa
-          imageToDeploy: ghcr.io/${{ github.repository_owner }}/batingeers---notification-service:qa-latest
+          imageToDeploy: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers---notification-service:qa-latest
