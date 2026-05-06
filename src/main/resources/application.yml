@@ -11,6 +11,25 @@ management:
     health:
       show-details: never
 
+jwt:
+  secret: ${JWT_SECRET:myDefaultSecretKeyForDevOnlyChangeInProduction1234567890}
+
+services:
+  task-service:
+    url: ${TASK_SERVICE_URL:http://task-service:8082}
+  academic-service:
+    url: ${ACADEMIC_SERVICE_URL:http://academic-service:8081}
+  planning-service:
+    url: ${PLANNING_SERVICE_URL:http://planning-service:8084}
+  social-service:
+    url: ${SOCIAL_SERVICE_URL:http://social-service:8086}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
 ---
 spring:
   config:
