@@ -19,9 +19,9 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Notification Service API")
-                        .description("Microservicio de notificaciones del Planeador Universitario Inteligente. " +
-                                "Gestiona alertas de sobrecarga (R22), bajo rendimiento (R22) " +
-                                "y sugerencias de estudio diario (R23).")
+                        .description("Notification microservice for the Intelligent University Planner. " +
+                                "Manages overload alerts (R22), low academic performance alerts (R22), " +
+                                "and daily study suggestions (R23).")
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Batingeers Team")

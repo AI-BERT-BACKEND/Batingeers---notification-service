@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/stats")
 @RequiredArgsConstructor
-@Tag(name = "Estadísticas", description = "Sugerencia diaria de estudio (R23)")
+@Tag(name = "Statistics", description = "Daily study suggestion (R23)")
 public class SuggestionController {
 
     private final GetDailySuggestionPort getDailySuggestionPort;
 
     @GetMapping("/suggestion")
     @Operation(
-        summary = "R23 — ¿Qué estudiar hoy?",
-        description = "Aplica la fórmula peso×0.6 + 1/días×0.4 sobre las tareas pendientes " +
-                      "y devuelve la tarea/materia con mayor prioridad calculada. " +
-                      "Retorna 204 si no hay tareas pendientes."
+        summary = "R23 — What to study today?",
+        description = "Applies the formula weight×0.6 + 1/days×0.4 over pending tasks " +
+                      "and returns the task/subject with the highest calculated priority. " +
+                      "Returns 204 if there are no pending tasks."
     )
     public ResponseEntity<StudySuggestionDTO> getSuggestion(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {

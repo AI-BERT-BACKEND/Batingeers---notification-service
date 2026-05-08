@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/notifications")
 @RequiredArgsConstructor
-@Tag(name = "Notificaciones", description = "Gestión de notificaciones académicas (R22, R23)")
+@Tag(name = "Notifications", description = "Academic notification management (R22, R23)")
 public class NotificationController {
 
     private final CreateNotificationPort createNotificationPort;
@@ -41,9 +41,9 @@ public class NotificationController {
 
     @PostMapping
     @Operation(
-        summary = "Crear notificación",
-        description = "Endpoint para que otros microservicios (planning-service, academic-service, " +
-                      "social-service) envíen notificaciones a un usuario."
+        summary = "Create notification",
+        description = "Endpoint for other microservices (planning-service, academic-service, " +
+                      "social-service) to send notifications to a user."
     )
     public ResponseEntity<NotificationResponse> create(
             @Valid @RequestBody CreateNotificationRequest request) {
@@ -53,8 +53,8 @@ public class NotificationController {
 
     @GetMapping("/me")
     @Operation(
-        summary = "Mis notificaciones",
-        description = "Retorna todas las notificaciones del usuario autenticado, ordenadas por fecha."
+        summary = "My notifications",
+        description = "Returns all notifications for the authenticated user, sorted by date."
     )
     public ResponseEntity<List<NotificationResponse>> getMyNotifications(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
@@ -63,8 +63,8 @@ public class NotificationController {
 
     @GetMapping("/me/unread")
     @Operation(
-        summary = "Notificaciones no leídas",
-        description = "Retorna solo las notificaciones no leídas del usuario autenticado."
+        summary = "Unread notifications",
+        description = "Returns only unread notifications for the authenticated user."
     )
     public ResponseEntity<List<NotificationResponse>> getMyUnread(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
@@ -73,8 +73,8 @@ public class NotificationController {
 
     @GetMapping("/me/count")
     @Operation(
-        summary = "Cantidad de no leídas",
-        description = "Retorna el conteo de notificaciones no leídas del usuario autenticado."
+        summary = "Unread count",
+        description = "Returns the count of unread notifications for the authenticated user."
     )
     public ResponseEntity<UnreadCountResponse> getUnreadCount(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
@@ -83,9 +83,9 @@ public class NotificationController {
 
     @GetMapping("/me/suggestions")
     @Operation(
-        summary = "R23 — ¿Qué estudiar hoy?",
-        description = "Retorna las sugerencias de estudio para el día actual. Si no existen, " +
-                      "consulta el planning-service para generarlas automáticamente."
+        summary = "R23 — What to study today?",
+        description = "Returns study suggestions for the current day. If none exist, " +
+                      "queries the planning-service to generate them automatically."
     )
     public ResponseEntity<List<NotificationResponse>> getTodaySuggestions(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
@@ -94,9 +94,9 @@ public class NotificationController {
 
     @GetMapping("/me/alerts")
     @Operation(
-        summary = "R22 — Alertas de sobrecarga y bajo rendimiento",
-        description = "Retorna alertas activas de sobrecarga académica y bajo rendimiento. " +
-                      "Consulta task-service y academic-service para generar nuevas alertas si aplica."
+        summary = "R22 — Overload and low performance alerts",
+        description = "Returns active overload and low academic performance alerts. " +
+                      "Queries task-service and academic-service to generate new alerts if applicable."
     )
     public ResponseEntity<List<NotificationResponse>> getMyAlerts(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
@@ -105,8 +105,8 @@ public class NotificationController {
 
     @PutMapping("/{id}/read")
     @Operation(
-        summary = "Marcar notificación como leída",
-        description = "Marca una notificación específica como leída. Verifica que pertenezca al usuario."
+        summary = "Mark notification as read",
+        description = "Marks a specific notification as read. Verifies it belongs to the authenticated user."
     )
     public ResponseEntity<NotificationResponse> markAsRead(
             @PathVariable Long id,
@@ -116,8 +116,8 @@ public class NotificationController {
 
     @PutMapping("/me/read-all")
     @Operation(
-        summary = "Marcar todas como leídas",
-        description = "Marca todas las notificaciones no leídas del usuario como leídas."
+        summary = "Mark all as read",
+        description = "Marks all unread notifications for the authenticated user as read."
     )
     public ResponseEntity<Void> markAllAsRead(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
