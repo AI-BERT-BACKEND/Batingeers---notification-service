@@ -16,16 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/stats")
 @RequiredArgsConstructor
-@Tag(name = "Estadísticas", description = "Alertas de sobrecarga y bajo rendimiento (R22)")
+@Tag(name = "Statistics", description = "Overload and low academic performance alerts (R22)")
 public class AlertController {
 
     private final GetStatsAlertsPort getStatsAlertsPort;
 
     @GetMapping("/alerts")
     @Operation(
-        summary = "R22 — Alertas de sobrecarga y bajo rendimiento",
-        description = "Evalúa la carga semanal vs. disponibilidad y notas proyectadas vs. umbral 3.0. " +
-                      "Retorna banners OverloadAlertDTO y LowGradeAlertDTO con variant warning o critical."
+        summary = "R22 — Overload and low performance alerts",
+        description = "Evaluates weekly workload vs. availability and projected grades vs. threshold 3.0. " +
+                      "Returns OverloadAlertDTO and LowGradeAlertDTO banners with warning or critical variant."
     )
     public ResponseEntity<AlertsResponseDTO> getAlerts(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
