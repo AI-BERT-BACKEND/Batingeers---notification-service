@@ -22,6 +22,17 @@
 
 ---
 
+#  Equipo
+
+**Nombre del equipo**
+
+| Integrante | Rol |
+|-----------|------|
+| Joshua David Quiroga Landazabal | Arquitecto Backend |
+| Juan Manuel Lopez | Arquitecto DevOps |
+| Laura Valentina Santiago Marquez | Lider |
+| Juan Sebastian Murcia Yanquen | Frontend |
+
 # Descripción General
 
 ## Resumen Ejecutivo
@@ -46,17 +57,26 @@ Descripción breve del proyecto:
 
 ---
 
-#  Equipo
+## Patrones de Diseño Utilizados
 
-**Nombre del equipo**
+- Dependency Injection
+- Repository Pattern
+- DTO Pattern
+- Service Layer Pattern
+- Builder Pattern
+- Factory Method
+- Singleton (gestionado por Spring)
 
-| Integrante | Rol | Responsabilidades |
-|-----------|------|------------------|
-| Sheldon Cooper | Arquitecto | Diseño del sistema |
-| Walter White | Backend | APIs y lógica |
-| Tony Stark | DevOps | Infraestructura |
-| Jesse Pinkman | Frontend | UI/UX |
-| R2-D2 | QA | Testing |
+## Requerimientos Funcionales
+
+| ID | Requerimiento | Módulo |
+|----|---------------|--------|
+| R22 | Recibir alertas de sobrecarga y bajo rendimiento | notification-service |
+| R23 | Ver sugerencia de qué estudiar hoy | notification-service |
+| RF-01 | Login de usuarios | Seguridad |
+| RF-02 | Gestión de datos | Core |
+
+
 
 ---
 
@@ -84,11 +104,21 @@ Descripción del contexto.
 
 Problema principal identificado.
 
-## Dificultades Actuales
+#  Stack Tecnológico
 
-- Dificultad 1
-- Dificultad 2
-- Dificultad 3
+| Área | Tecnologías |
+|------|-------------|
+| Backend | Java 21, Spring Boot 3 |
+| Frontend | React / Angular |
+| API | REST, OpenAPI, Swagger |
+| Seguridad | Spring Security, JWT |
+| SQL | PostgreSQL |
+| NoSQL | MongoDB |
+| Persistencia | Spring Data JPA |
+| Testing | JUnit 5, Mockito |
+| DevOps | Docker, GitHub Actions |
+| Calidad | SonarCloud, JaCoCo |
+| Documentación | Swagger UI |
 
 ## Solución Propuesta
 
@@ -102,20 +132,9 @@ Descripción general del enfoque.
 
 ## Requerimientos Funcionales
 
-| ID | Requerimiento | Módulo |
-|----|---------------|--------|
-| RF-01 | Login de usuarios | Seguridad |
-| RF-02 | Gestión de datos | Core |
+## Documentación de API
 
----
-
-## Requerimientos No Funcionales
-
-| ID | Requerimiento | Métrica |
-|----|----------------|---------|
-| RNF-01 | Disponibilidad | 99.9% |
-| RNF-02 | Tiempo respuesta | < 2s |
-| RNF-03 | Seguridad | JWT / OAuth |
+http://localhost:8080/swagger-ui.html
 
 ---
 
