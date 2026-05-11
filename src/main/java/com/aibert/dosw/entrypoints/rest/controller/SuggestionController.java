@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/stats")
 @RequiredArgsConstructor
-@Tag(name = "Statistics", description = "Daily study suggestion (R23)")
+@Tag(name = "Alerts & Suggestions", description = "Daily study suggestion (R23)")
 public class SuggestionController {
 
     private final GetDailySuggestionPort getDailySuggestionPort;
