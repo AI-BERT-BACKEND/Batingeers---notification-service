@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/stats")
 @RequiredArgsConstructor
-@Tag(name = "Statistics", description = "Overload and low academic performance alerts (R22)")
+@Tag(name = "Alerts & Suggestions", description = "Overload and low academic performance alerts (R22)")
 public class AlertController {
 
     private final GetStatsAlertsPort getStatsAlertsPort;
