@@ -467,6 +467,42 @@ Flujo de consulta de notificaciones del usuario: validación JWT, extracción de
 </div>
 
 ---
+### 🔁 Diagrama de Clases — `Dominio`
+
+El modelo Notification encapsula toda la info de una notificación (tipo, título, mensaje, severidad, estado de lectura) usando enums para los campos categóricos.
+
+
+<div align="center">
+
+![diagrameDeClasesNotification.jpeg](docs/uml/diagramas/diagrameDeClasesNotification.jpeg)
+
+</div>
+
+---
+
+### 🔁 Diagrama de Entidad relación 
+
+La entidad mapea esa misma entidad a la BD con sus tipos SQL reales (UUID, String con límites, boolean, LocalDateTime).
+
+<div align="center">
+
+![diagramaERNotification.PNG](docs/uml/diagramas/diagramaERNotification.PNG)
+
+</div>
+
+---
+
+### 🔁 Diagrama de Componentes Generales
+
+El flujo va User → Controller → Use Cases → (repositorio a la BD) y (External Service Adapter → Feign Clients → microservicios externos como Academic, Task, Planning, Social).
+
+<div align="center">
+
+![diagramaComponentesEspecificosNotification.PNG](docs/uml/diagramas/diagramaComponentesEspecificosNotification.PNG)
+
+</div>
+
+---
 
 ### 🏗️ Diagrama de Arquitectura Hexagonal
 
