@@ -511,6 +511,8 @@ El microservicio implementa un **mecanismo centralizado de manejo de errores** a
 
 ## 9. 🧪 Evidencia de Pruebas y Ejecución
 
+https://aibert-notification-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/swagger-ui/index.html
+
 El proyecto incluye pruebas unitarias para todos los casos de uso, adaptadores de infraestructura y controladores REST.
 
 ### Clases de prueba incluidas
