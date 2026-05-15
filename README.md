@@ -432,13 +432,12 @@ Esta sección muestra los flujos de interacción entre los componentes del micro
 
 ---
 
-### 🔁 Diagrama de Secuencia — `GET /api/v1/stats/alerts`
+### 🔁 Diagrama de Secuencia — Overload
 
-Flujo completo de evaluación de alertas en tiempo real: autenticación JWT, consulta a task-service y academic-service vía Feign, y construcción de la respuesta consolidada.
 
 <div align="center">
 
-<!-- Insertar diagrama de secuencia aquí -->
+<img width="8192" height="6701" alt="Overload Sequence Diagram" src="https://github.com/user-attachments/assets/f9381090-027f-4493-8095-e86016051c26" />
 
 </div>
 
@@ -456,13 +455,22 @@ Flujo del consumer: recepción del evento desde el topic `notification-events`, 
 
 ---
 
-### 🔁 Diagrama de Secuencia — `GET /api/v1/notifications/me`
+### 🔁 Diagrama de Secuencia — Crear notificacion
 
-Flujo de consulta de notificaciones del usuario: validación JWT, extracción del `userId` del principal y consulta al repositorio.
 
 <div align="center">
 
-<!-- Insertar diagrama de secuencia aquí -->
+<img width="8182" height="4190" alt="Create Notification Sequence Diagram" src="https://github.com/user-attachments/assets/23b4bf11-b425-4789-8ebf-e70fdfc64034" />
+
+</div>
+---
+
+### 🔁 Diagrama de Secuencia — Low Performance
+
+
+<div align="center">
+
+<img width="7502" height="5810" alt="Performance Sequence Diagram" src="https://github.com/user-attachments/assets/ba1d8512-09b0-420e-b8ba-7d124fb43c15" />
 
 </div>
 
