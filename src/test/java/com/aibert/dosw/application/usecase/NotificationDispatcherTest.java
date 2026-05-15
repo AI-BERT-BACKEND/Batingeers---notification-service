@@ -53,7 +53,7 @@ class NotificationDispatcherTest {
     @DisplayName("getAlerts retorna ambas alertas activas cuando las condiciones lo justifican")
     void getAlerts_bothActiveAlerts() {
         OverloadAlertDTO overload = OverloadAlertDTO.builder()
-                .active(true).bannerVariant("critical").weeklyTaskCount(12).build();
+                .active(true).bannerVariant("critical").requiredHours(12).build();
         LowGradeAlertDTO lowGrade = LowGradeAlertDTO.builder()
                 .active(true).bannerVariant("warning").currentAverage(2.8)
                 .subjectsAtRisk(List.of("Cálculo I")).threshold(3.0).build();
