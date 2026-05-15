@@ -14,6 +14,7 @@ import java.util.List;
 public class AcademicPerformanceData {
     private Long userId;
     private List<String> atRiskSubjectNames;
+    private List<SubjectRiskData> subjectRisks;
     private double overallAverage;
     private boolean atRisk;
 }

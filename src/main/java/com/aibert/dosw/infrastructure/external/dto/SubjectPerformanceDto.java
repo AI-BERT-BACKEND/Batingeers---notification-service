@@ -12,5 +12,6 @@ public class SubjectPerformanceDto {
     private String subjectName;
     private Double currentGrade;
     private Double targetGrade;
+    private Double projectedGrade;
     private boolean atRisk;
 }

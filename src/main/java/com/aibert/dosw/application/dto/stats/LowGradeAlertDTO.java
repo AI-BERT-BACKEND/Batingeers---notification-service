@@ -16,7 +16,9 @@ public class LowGradeAlertDTO {
     private String bannerVariant;
     private String title;
     private String message;
+    private String alertMessage;
     private List<String> subjectsAtRisk;
+    private List<RiskSubjectDTO> riskSubjects;
     private double currentAverage;
     private double threshold;
 }

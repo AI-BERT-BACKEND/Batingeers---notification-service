@@ -93,7 +93,7 @@ class AlertControllerTest {
         AlertsResponseDTO response = AlertsResponseDTO.builder()
                 .overloadAlert(OverloadAlertDTO.builder()
                         .active(true).bannerVariant("critical")
-                        .title("Sobrecarga crítica").weeklyTaskCount(10).availableHours(8).build())
+                        .title("Sobrecarga crítica").requiredHours(10).availableHours(8).build())
                 .lowGradeAlert(LowGradeAlertDTO.builder()
                         .active(true).bannerVariant("warning")
                         .title("Bajo rendimiento académico")
@@ -108,7 +108,7 @@ class AlertControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.overloadAlert.active").value(true))
                 .andExpect(jsonPath("$.overloadAlert.bannerVariant").value("critical"))
-                .andExpect(jsonPath("$.overloadAlert.weeklyTaskCount").value(10))
+                .andExpect(jsonPath("$.overloadAlert.requiredHours").value(10))
                 .andExpect(jsonPath("$.lowGradeAlert.active").value(true))
                 .andExpect(jsonPath("$.lowGradeAlert.bannerVariant").value("warning"))
                 .andExpect(jsonPath("$.lowGradeAlert.subjectsAtRisk[0]").value("Cálculo I"));

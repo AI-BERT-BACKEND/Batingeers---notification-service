@@ -9,11 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OverloadAlertDTO {
-    private boolean active;
-    private String bannerVariant;
-    private String title;
-    private String message;
-    private int requiredHours;
-    private int availableHours;
+public class RiskSubjectDTO {
+    private String name;
+    private double projectedGrade;
+    private String recommendation;
 }
