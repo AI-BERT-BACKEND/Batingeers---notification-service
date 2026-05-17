@@ -62,7 +62,7 @@ class AlertServiceTest {
     }
 
     @Test
-    @DisplayName("Overload: carga normal → alerta inactiva")
+    @DisplayName("Overload: carga normal → alerta inactiva con requiredHours y overloadHours")
     void overload_normalWorkload_returnsInactive() {
         when(weeklyAvailabilityPort.getWeeklyAvailability(userId)).thenReturn(Optional.of(
                 WeeklyAvailabilityData.builder().userId(userId)
@@ -74,11 +74,13 @@ class AlertServiceTest {
         OverloadAlertDTO result = alertService.evaluateOverloadAlert(userId);
 
         assertThat(result.isActive()).isFalse();
-        assertThat(result.getRequiredHours()).isEqualTo(6);
+        assertThat(result.getRequiredHours()).isEqualTo(6.0);
+        assertThat(result.getAvailableHours()).isEqualTo(20.0);
+        assertThat(result.getOverloadHours()).isEqualTo(-14.0);
     }
 
     @Test
-    @DisplayName("Overload: carga HIGH → activa con variant warning")
+    @DisplayName("Overload: carga HIGH → activa con variant warning y suggestedAction")
     void overload_highWorkload_returnsActiveWarning() {
         when(weeklyAvailabilityPort.getWeeklyAvailability(userId)).thenReturn(Optional.of(
                 WeeklyAvailabilityData.builder().userId(userId)
@@ -92,10 +94,13 @@ class AlertServiceTest {
         assertThat(result.isActive()).isTrue();
         assertThat(result.getBannerVariant()).isEqualTo("warning");
         assertThat(result.getMessage()).contains("8 tareas");
+        assertThat(result.getSuggestedAction()).contains("Prioriza");
+        assertThat(result.getRequiredHours()).isEqualTo(16.0);
+        assertThat(result.getOverloadHours()).isEqualTo(6.0);
     }
 
     @Test
-    @DisplayName("Overload: carga CRITICAL → activa con variant critical")
+    @DisplayName("Overload: carga CRITICAL → activa con variant critical y suggestedAction de reducción")
     void overload_criticalWorkload_returnsActiveCritical() {
         when(weeklyAvailabilityPort.getWeeklyAvailability(userId)).thenReturn(Optional.of(
                 WeeklyAvailabilityData.builder().userId(userId)
@@ -108,7 +113,10 @@ class AlertServiceTest {
 
         assertThat(result.isActive()).isTrue();
         assertThat(result.getBannerVariant()).isEqualTo("critical");
-        assertThat(result.getRequiredHours()).isEqualTo(20);
+        assertThat(result.getRequiredHours()).isEqualTo(20.0);
+        assertThat(result.getAvailableHours()).isEqualTo(10.0);
+        assertThat(result.getOverloadHours()).isEqualTo(10.0);
+        assertThat(result.getSuggestedAction()).contains("reprogramar");
     }
 
     @Test
@@ -153,7 +161,7 @@ class AlertServiceTest {
     }
 
     @Test
-    @DisplayName("LowGrade: promedio < 3.0 → activa con variant warning")
+    @DisplayName("LowGrade: promedio < 3.0 → activa con variant warning y alertTitle")
     void lowGrade_averageBelowThreshold_returnsActiveWarning() {
         when(academicServicePort.getUserPerformance(userId)).thenReturn(Optional.of(
                 AcademicPerformanceData.builder()
@@ -166,6 +174,8 @@ class AlertServiceTest {
         assertThat(result.getBannerVariant()).isEqualTo("warning");
         assertThat(result.getSubjectsAtRisk()).contains("Cálculo I");
         assertThat(result.getMessage()).contains("2.8");
+        assertThat(result.getAlertTitle()).isEqualTo("Materias en riesgo académico");
+        assertThat(result.getGeneratedDate()).isNotNull();
     }
 
     @Test
@@ -181,6 +191,7 @@ class AlertServiceTest {
         assertThat(result.isActive()).isTrue();
         assertThat(result.getBannerVariant()).isEqualTo("critical");
         assertThat(result.getCurrentAverage()).isEqualTo(2.4);
+        assertThat(result.getGeneratedDate()).isNotNull();
     }
 
     @Test
@@ -217,14 +228,14 @@ class AlertServiceTest {
         assertThat(lowGrade.isActive()).isTrue();
     }
 
-    // ─── riskSubjects & alertMessage (AIB-34) ───────────────────────────────
+    // ─── riskSubjects, riskLevel & alertMessage ──────────────────────────────
 
     @Test
     @DisplayName("LowGrade: con subjectRisks → riskSubjects ordenados por nota ascendente")
     void lowGrade_withSubjectRisks_sortedAscending() {
         List<SubjectRiskData> risks = List.of(
-                SubjectRiskData.builder().name("Física II").projectedGrade(2.8).build(),
-                SubjectRiskData.builder().name("Cálculo I").projectedGrade(1.9).build()
+                SubjectRiskData.builder().subjectId("2").name("Física II").projectedGrade(2.8).build(),
+                SubjectRiskData.builder().subjectId("1").name("Cálculo I").projectedGrade(1.9).build()
         );
         when(academicServicePort.getUserPerformance(userId)).thenReturn(Optional.of(
                 AcademicPerformanceData.builder()
@@ -243,12 +254,12 @@ class AlertServiceTest {
     }
 
     @Test
-    @DisplayName("LowGrade: con subjectRisks → cada materia tiene recommendation")
-    void lowGrade_withSubjectRisks_eachHasRecommendation() {
+    @DisplayName("LowGrade: con subjectRisks → cada materia tiene riskLevel correcto")
+    void lowGrade_withSubjectRisks_hasCorrectRiskLevel() {
         List<SubjectRiskData> risks = List.of(
-                SubjectRiskData.builder().name("Cálculo I").projectedGrade(1.8).build(),
-                SubjectRiskData.builder().name("Física II").projectedGrade(2.3).build(),
-                SubjectRiskData.builder().name("Estadística").projectedGrade(2.7).build()
+                SubjectRiskData.builder().subjectId("1").name("Cálculo I").projectedGrade(1.8).build(),
+                SubjectRiskData.builder().subjectId("2").name("Física II").projectedGrade(2.3).build(),
+                SubjectRiskData.builder().subjectId("3").name("Estadística").projectedGrade(2.7).build()
         );
         when(academicServicePort.getUserPerformance(userId)).thenReturn(Optional.of(
                 AcademicPerformanceData.builder()
@@ -257,19 +268,52 @@ class AlertServiceTest {
 
         LowGradeAlertDTO result = alertService.evaluateLowGradeAlert(userId);
 
-        assertThat(result.getRiskSubjects().get(0).getRecommendation())
-                .contains("asesoría académica");
-        assertThat(result.getRiskSubjects().get(1).getRecommendation())
-                .contains("Revisa");
-        assertThat(result.getRiskSubjects().get(2).getRecommendation())
-                .contains("tiempo de estudio");
+        assertThat(result.getRiskSubjects().get(0).getRiskLevel()).isEqualTo("Crítico");
+        assertThat(result.getRiskSubjects().get(1).getRiskLevel()).isEqualTo("Alto");
+        assertThat(result.getRiskSubjects().get(2).getRiskLevel()).isEqualTo("Medio");
+    }
+
+    @Test
+    @DisplayName("LowGrade: con subjectRisks → cada materia tiene recommendation")
+    void lowGrade_withSubjectRisks_eachHasRecommendation() {
+        List<SubjectRiskData> risks = List.of(
+                SubjectRiskData.builder().subjectId("1").name("Cálculo I").projectedGrade(1.8).build(),
+                SubjectRiskData.builder().subjectId("2").name("Física II").projectedGrade(2.3).build(),
+                SubjectRiskData.builder().subjectId("3").name("Estadística").projectedGrade(2.7).build()
+        );
+        when(academicServicePort.getUserPerformance(userId)).thenReturn(Optional.of(
+                AcademicPerformanceData.builder()
+                        .userId(userId).atRiskSubjectNames(List.of("Cálculo I", "Física II", "Estadística"))
+                        .subjectRisks(risks).overallAverage(2.3).atRisk(true).build()));
+
+        LowGradeAlertDTO result = alertService.evaluateLowGradeAlert(userId);
+
+        assertThat(result.getRiskSubjects().get(0).getRecommendation()).contains("asesoría académica");
+        assertThat(result.getRiskSubjects().get(1).getRecommendation()).contains("Revisa");
+        assertThat(result.getRiskSubjects().get(2).getRecommendation()).contains("tiempo de estudio");
+    }
+
+    @Test
+    @DisplayName("LowGrade: con subjectRisks → cada materia tiene subjectId mapeado")
+    void lowGrade_withSubjectRisks_hasSubjectId() {
+        List<SubjectRiskData> risks = List.of(
+                SubjectRiskData.builder().subjectId("42").name("Cálculo I").projectedGrade(2.1).build()
+        );
+        when(academicServicePort.getUserPerformance(userId)).thenReturn(Optional.of(
+                AcademicPerformanceData.builder()
+                        .userId(userId).atRiskSubjectNames(List.of("Cálculo I"))
+                        .subjectRisks(risks).overallAverage(2.5).atRisk(true).build()));
+
+        LowGradeAlertDTO result = alertService.evaluateLowGradeAlert(userId);
+
+        assertThat(result.getRiskSubjects().get(0).getSubjectId()).isEqualTo("42");
     }
 
     @Test
     @DisplayName("LowGrade: con subjectRisks → alertMessage contiene nombres y notas")
     void lowGrade_withSubjectRisks_alertMessageContainsInfo() {
         List<SubjectRiskData> risks = List.of(
-                SubjectRiskData.builder().name("Cálculo I").projectedGrade(2.1).build()
+                SubjectRiskData.builder().subjectId("1").name("Cálculo I").projectedGrade(2.1).build()
         );
         when(academicServicePort.getUserPerformance(userId)).thenReturn(Optional.of(
                 AcademicPerformanceData.builder()

@@ -37,6 +37,7 @@ public class AcademicServiceAdapter implements AcademicServicePort {
         List<SubjectRiskData> subjectRisks = subjects.stream()
                 .filter(SubjectPerformanceDto::isAtRisk)
                 .map(s -> SubjectRiskData.builder()
+                        .subjectId(s.getSubjectId() != null ? String.valueOf(s.getSubjectId()) : null)
                         .name(s.getSubjectName())
                         .projectedGrade(resolveProjectedGrade(s))
                         .build())

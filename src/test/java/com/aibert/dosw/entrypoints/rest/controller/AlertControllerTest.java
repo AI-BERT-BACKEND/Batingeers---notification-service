@@ -3,6 +3,7 @@ package com.aibert.dosw.entrypoints.rest.controller;
 import com.aibert.dosw.application.dto.stats.AlertsResponseDTO;
 import com.aibert.dosw.application.dto.stats.LowGradeAlertDTO;
 import com.aibert.dosw.application.dto.stats.OverloadAlertDTO;
+import com.aibert.dosw.application.dto.stats.RiskSubjectDTO;
 import com.aibert.dosw.config.JwtAuthenticationFilter;
 import com.aibert.dosw.config.UserPrincipal;
 import com.aibert.dosw.domain.ports.in.GetStatsAlertsPort;
@@ -17,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -88,17 +90,28 @@ class AlertControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/v1/stats/alerts → 200 con ambas alertas activas")
+    @DisplayName("GET /api/v1/stats/alerts → 200 con ambas alertas activas y campos nuevos")
     void getAlerts_bothActive_returns200() throws Exception {
         AlertsResponseDTO response = AlertsResponseDTO.builder()
                 .overloadAlert(OverloadAlertDTO.builder()
                         .active(true).bannerVariant("critical")
-                        .title("Sobrecarga crítica").requiredHours(10).availableHours(8).build())
+                        .title("Sobrecarga crítica")
+                        .requiredHours(10.0).availableHours(8.0).overloadHours(2.0)
+                        .suggestedAction("Considera reprogramar algunas tareas.")
+                        .build())
                 .lowGradeAlert(LowGradeAlertDTO.builder()
                         .active(true).bannerVariant("warning")
                         .title("Bajo rendimiento académico")
+                        .alertTitle("Materias en riesgo académico")
                         .currentAverage(2.8).threshold(3.0)
-                        .subjectsAtRisk(List.of("Cálculo I")).build())
+                        .subjectsAtRisk(List.of("Cálculo I"))
+                        .riskSubjects(List.of(RiskSubjectDTO.builder()
+                                .subjectId("1").name("Cálculo I")
+                                .projectedGrade(2.1).riskLevel("Alto")
+                                .recommendation("Revisa las evaluaciones perdidas.")
+                                .build()))
+                        .generatedDate(LocalDateTime.now())
+                        .build())
                 .build();
         when(getStatsAlertsPort.getAlerts(any())).thenReturn(response);
 
@@ -108,9 +121,16 @@ class AlertControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.overloadAlert.active").value(true))
                 .andExpect(jsonPath("$.overloadAlert.bannerVariant").value("critical"))
-                .andExpect(jsonPath("$.overloadAlert.requiredHours").value(10))
+                .andExpect(jsonPath("$.overloadAlert.requiredHours").value(10.0))
+                .andExpect(jsonPath("$.overloadAlert.availableHours").value(8.0))
+                .andExpect(jsonPath("$.overloadAlert.overloadHours").value(2.0))
+                .andExpect(jsonPath("$.overloadAlert.suggestedAction").exists())
                 .andExpect(jsonPath("$.lowGradeAlert.active").value(true))
                 .andExpect(jsonPath("$.lowGradeAlert.bannerVariant").value("warning"))
-                .andExpect(jsonPath("$.lowGradeAlert.subjectsAtRisk[0]").value("Cálculo I"));
+                .andExpect(jsonPath("$.lowGradeAlert.alertTitle").value("Materias en riesgo académico"))
+                .andExpect(jsonPath("$.lowGradeAlert.subjectsAtRisk[0]").value("Cálculo I"))
+                .andExpect(jsonPath("$.lowGradeAlert.riskSubjects[0].subjectId").value("1"))
+                .andExpect(jsonPath("$.lowGradeAlert.riskSubjects[0].riskLevel").value("Alto"))
+                .andExpect(jsonPath("$.lowGradeAlert.generatedDate").exists());
     }
 }

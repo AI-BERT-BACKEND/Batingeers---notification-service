@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -52,26 +53,35 @@ public class AlertService {
         }
 
         TaskWorkloadData workload = workloadOpt.get();
-        int requiredHours = workload.getTotalTasks() * HOURS_PER_TASK;
-        boolean overloaded = requiredHours > availability.getTotalAvailableHours() || workload.isHigh();
+        double requiredHours = workload.getTotalTasks() * HOURS_PER_TASK;
+        double availableHours = availability.getTotalAvailableHours();
+        double overloadHours = requiredHours - availableHours;
+        boolean overloaded = requiredHours > availableHours || workload.isHigh();
 
         if (!overloaded) {
             return OverloadAlertDTO.builder()
                     .active(false)
                     .requiredHours(requiredHours)
-                    .availableHours(availability.getTotalAvailableHours())
+                    .availableHours(availableHours)
+                    .overloadHours(overloadHours)
                     .build();
         }
+
+        String suggestedAction = workload.isCritical()
+                ? "Considera reprogramar algunas tareas o reducir tu carga académica esta semana."
+                : "Prioriza las tareas urgentes y reprograma las de menor prioridad.";
 
         return OverloadAlertDTO.builder()
                 .active(true)
                 .bannerVariant(workload.isCritical() ? "critical" : "warning")
                 .title(workload.isCritical() ? "Sobrecarga crítica" : "Posible sobrecarga")
-                .message(String.format(
-                        "Tienes %d tareas (%d h estimadas) vs %d h disponibles esta semana.",
-                        workload.getTotalTasks(), requiredHours, availability.getTotalAvailableHours()))
+                .message(String.format(Locale.US,
+                        "Tienes %d tareas (%.1f h estimadas) vs %.1f h disponibles esta semana.",
+                        workload.getTotalTasks(), requiredHours, availableHours))
+                .suggestedAction(suggestedAction)
                 .requiredHours(requiredHours)
-                .availableHours(availability.getTotalAvailableHours())
+                .availableHours(availableHours)
+                .overloadHours(overloadHours)
                 .build();
     }
 
@@ -115,15 +125,18 @@ public class AlertService {
                 .active(true)
                 .bannerVariant(critical ? "critical" : "warning")
                 .title("Bajo rendimiento académico")
+                .alertTitle("Materias en riesgo académico")
                 .message(String.format(Locale.US,
                         "Tu promedio actual es %.1f (umbral mínimo: %.1f). Materias en riesgo: %s.",
                         performance.getOverallAverage(), GRADE_THRESHOLD,
                         atRiskSubjects.isEmpty() ? "ninguna" : String.join(", ", atRiskSubjects)))
                 .alertMessage(alertMessage)
+                .recommendation("Revisa cada materia en riesgo y consulta con tu tutor académico.")
                 .subjectsAtRisk(atRiskSubjects)
                 .riskSubjects(riskSubjects)
                 .currentAverage(performance.getOverallAverage())
                 .threshold(GRADE_THRESHOLD)
+                .generatedDate(LocalDateTime.now())
                 .build();
     }
 
@@ -134,11 +147,19 @@ public class AlertService {
         return risks.stream()
                 .sorted(Comparator.comparingDouble(SubjectRiskData::getProjectedGrade))
                 .map(s -> RiskSubjectDTO.builder()
+                        .subjectId(s.getSubjectId())
                         .name(s.getName())
                         .projectedGrade(s.getProjectedGrade())
+                        .riskLevel(riskLevelFor(s.getProjectedGrade()))
                         .recommendation(recommendationFor(s.getProjectedGrade()))
                         .build())
                 .toList();
+    }
+
+    private String riskLevelFor(double grade) {
+        if (grade < 2.0) return "Crítico";
+        if (grade < 2.5) return "Alto";
+        return "Medio";
     }
 
     private String recommendationFor(double grade) {

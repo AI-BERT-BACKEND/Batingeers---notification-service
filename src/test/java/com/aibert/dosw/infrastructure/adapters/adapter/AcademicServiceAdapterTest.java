@@ -48,8 +48,8 @@ class AcademicServiceAdapterTest {
     }
 
     @Test
-    @DisplayName("getUserPerformance: materia en riesgo con projectedGrade → subjectRisks mapeado")
-    void getUserPerformance_atRiskWithProjectedGrade_mapsSubjectRisks() {
+    @DisplayName("getUserPerformance: materia en riesgo → subjectRisks mapeado con subjectId y projectedGrade")
+    void getUserPerformance_atRiskWithProjectedGrade_mapsSubjectRisksAndId() {
         SubjectPerformanceDto calculus = new SubjectPerformanceDto(1L, "Cálculo I", 2.5, 3.0, 2.4, true);
         SubjectPerformanceDto history  = new SubjectPerformanceDto(2L, "Historia", 4.0, 3.5, 4.1, false);
         PerformanceDto dto = new PerformanceDto(userId, List.of(calculus, history), 3.2, true);
@@ -62,6 +62,7 @@ class AcademicServiceAdapterTest {
         assertThat(risks).hasSize(1);
         assertThat(risks.get(0).getName()).isEqualTo("Cálculo I");
         assertThat(risks.get(0).getProjectedGrade()).isEqualTo(2.4);
+        assertThat(risks.get(0).getSubjectId()).isEqualTo("1");
     }
 
     @Test
