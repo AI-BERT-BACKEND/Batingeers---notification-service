@@ -35,17 +35,17 @@ public class DailyStudyService implements GetDailySuggestionPort {
     }
 
     public double calculatePriority(PendingTaskData task) {
-        double peso = task.getPriorityWeight();
-        double dias = Math.max(task.getDaysUntilDue(), MIN_DAYS_DIVISOR);
-        return peso * WEIGHT_FACTOR + (1.0 / dias) * URGENCY_FACTOR;
+        double weight = task.getPriorityWeight();
+        double days = Math.max(task.getDaysUntilDue(), MIN_DAYS_DIVISOR);
+        return weight * WEIGHT_FACTOR + (1.0 / days) * URGENCY_FACTOR;
     }
 
     private StudySuggestionDTO toSuggestionDTO(PendingTaskData task) {
         double priority = calculatePriority(task);
-        double dias = Math.max(task.getDaysUntilDue(), MIN_DAYS_DIVISOR);
+        double days = Math.max(task.getDaysUntilDue(), MIN_DAYS_DIVISOR);
         String reason = String.format(
-                "Prioridad %.2f: peso=%d (×0.6) + urgencia 1/%.1f días (×0.4).",
-                priority, task.getPriorityWeight(), dias);
+                "Priority %.2f: weight=%d (×0.6) + urgency 1/%.1f days (×0.4).",
+                priority, task.getPriorityWeight(), days);
 
         return StudySuggestionDTO.builder()
                 .suggestedTask(task.getTitle())

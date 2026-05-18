@@ -65,7 +65,7 @@ public class GetAlertsUseCase implements GetAlertsPort {
                 }
             });
         } catch (Exception ex) {
-            log.warn("No se pudo consultar la carga de tareas para userId={}: {}", userId, ex.getMessage());
+            log.warn("Could not retrieve task workload for userId={}: {}", userId, ex.getMessage());
         }
     }
 
@@ -85,13 +85,13 @@ public class GetAlertsUseCase implements GetAlertsPort {
                 }
             });
         } catch (Exception ex) {
-            log.warn("No se pudo consultar el rendimiento para userId={}: {}", userId, ex.getMessage());
+            log.warn("Could not retrieve academic performance for userId={}: {}", userId, ex.getMessage());
         }
     }
 
     private Notification buildOverloadAlert(Long userId, TaskWorkloadData workload) {
         String message = String.format(
-                "Tienes %d tareas activas (%d urgentes, %d vencidas). Considera redistribuir tu carga.",
+                "You have %d active tasks (%d urgent, %d overdue). Consider redistributing your workload.",
                 workload.getTotalTasks(), workload.getUrgentTasks(), workload.getOverdueTasks());
 
         NotificationSeverity severity = workload.isCritical()
@@ -100,7 +100,7 @@ public class GetAlertsUseCase implements GetAlertsPort {
         return Notification.builder()
                 .userId(userId)
                 .type(NotificationType.OVERLOAD_ALERT)
-                .title("Alerta de sobrecarga académica")
+                .title("Academic overload alert")
                 .message(message)
                 .severity(severity)
                 .read(false)
@@ -111,13 +111,13 @@ public class GetAlertsUseCase implements GetAlertsPort {
     private Notification buildLowPerformanceAlert(Long userId, AcademicPerformanceData performance) {
         String subjects = String.join(", ", performance.getAtRiskSubjectNames());
         String message = String.format(
-                "Tu promedio general es %.1f. Las materias en riesgo son: %s.",
+                "Your overall average is %.1f. Subjects at risk: %s.",
                 performance.getOverallAverage(), subjects);
 
         return Notification.builder()
                 .userId(userId)
                 .type(NotificationType.LOW_PERFORMANCE_ALERT)
-                .title("Alerta de bajo rendimiento")
+                .title("Low academic performance alert")
                 .message(message)
                 .severity(NotificationSeverity.HIGH)
                 .read(false)

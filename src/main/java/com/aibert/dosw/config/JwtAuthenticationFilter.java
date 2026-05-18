@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -54,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         ? Collections.emptyList()
                         : roles.stream()
                                 .map(SimpleGrantedAuthority::new)
-                                .collect(Collectors.toList());
+                                .toList();
 
                 UserPrincipal principal = new UserPrincipal(userId, username);
                 UsernamePasswordAuthenticationToken auth =
@@ -63,7 +62,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } catch (JwtException ex) {
-            log.warn("Token JWT inválido: {}", ex.getMessage());
+            log.warn("Invalid JWT token: {}", ex.getMessage());
         }
 
         filterChain.doFilter(request, response);

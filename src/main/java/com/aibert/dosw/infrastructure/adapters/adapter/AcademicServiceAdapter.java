@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -32,15 +31,16 @@ public class AcademicServiceAdapter implements AcademicServicePort {
         List<String> atRiskSubjects = subjects.stream()
                 .filter(SubjectPerformanceDto::isAtRisk)
                 .map(SubjectPerformanceDto::getSubjectName)
-                .collect(Collectors.toList());
+                .toList();
 
         List<SubjectRiskData> subjectRisks = subjects.stream()
                 .filter(SubjectPerformanceDto::isAtRisk)
                 .map(s -> SubjectRiskData.builder()
+                        .subjectId(s.getSubjectId() != null ? String.valueOf(s.getSubjectId()) : null)
                         .name(s.getSubjectName())
                         .projectedGrade(resolveProjectedGrade(s))
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         return Optional.of(AcademicPerformanceData.builder()
                 .userId(dto.getUserId())

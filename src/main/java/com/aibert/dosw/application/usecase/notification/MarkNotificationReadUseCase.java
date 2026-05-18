@@ -28,7 +28,7 @@ public class MarkNotificationReadUseCase implements MarkNotificationReadPort {
 
         if (!notification.getUserId().equals(userId)) {
             throw new InvalidNotificationException(
-                    "La notificación no pertenece al usuario con id: " + userId);
+                    "Notification does not belong to user with id: " + userId);
         }
 
         LocalDateTime now = LocalDateTime.now();

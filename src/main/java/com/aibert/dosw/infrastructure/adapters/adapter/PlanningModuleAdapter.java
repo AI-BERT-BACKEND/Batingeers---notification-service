@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -34,7 +33,7 @@ public class PlanningModuleAdapter implements WeeklyAvailabilityPort, PendingTas
                     .configuredDays(dto.getConfiguredDays())
                     .build());
         } catch (Exception ex) {
-            log.warn("No se pudo obtener disponibilidad semanal para userId={}: {}", userId, ex.getMessage());
+            log.warn("Could not retrieve weekly availability for userId={}: {}", userId, ex.getMessage());
             return Optional.empty();
         }
     }
@@ -52,9 +51,9 @@ public class PlanningModuleAdapter implements WeeklyAvailabilityPort, PendingTas
                             .priority(dto.getPriority())
                             .dueDate(dto.getDueDate())
                             .build())
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (Exception ex) {
-            log.warn("No se pudo obtener tareas pendientes para userId={}: {}", userId, ex.getMessage());
+            log.warn("Could not retrieve pending tasks for userId={}: {}", userId, ex.getMessage());
             return Collections.emptyList();
         }
     }

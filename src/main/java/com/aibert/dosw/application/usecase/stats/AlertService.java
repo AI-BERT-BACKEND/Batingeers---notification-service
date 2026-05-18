@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -39,8 +40,8 @@ public class AlertService {
         if (availabilityOpt.isEmpty() || !availabilityOpt.get().isConfigured()) {
             return OverloadAlertDTO.builder()
                     .active(false)
-                    .title("Sin disponibilidad configurada")
-                    .message("Configura tu disponibilidad semanal para recibir alertas de sobrecarga.")
+                    .title("Weekly availability not configured")
+                    .message("Set up your weekly availability to receive overload alerts.")
                     .build();
         }
 
@@ -52,26 +53,35 @@ public class AlertService {
         }
 
         TaskWorkloadData workload = workloadOpt.get();
-        int requiredHours = workload.getTotalTasks() * HOURS_PER_TASK;
-        boolean overloaded = requiredHours > availability.getTotalAvailableHours() || workload.isHigh();
+        double requiredHours = (double) workload.getTotalTasks() * HOURS_PER_TASK;
+        double availableHours = availability.getTotalAvailableHours();
+        double overloadHours = requiredHours - availableHours;
+        boolean overloaded = requiredHours > availableHours || workload.isHigh();
 
         if (!overloaded) {
             return OverloadAlertDTO.builder()
                     .active(false)
                     .requiredHours(requiredHours)
-                    .availableHours(availability.getTotalAvailableHours())
+                    .availableHours(availableHours)
+                    .overloadHours(overloadHours)
                     .build();
         }
+
+        String suggestedAction = workload.isCritical()
+                ? "Consider rescheduling some tasks or reducing your academic load this week."
+                : "Prioritize urgent tasks and reschedule lower-priority ones.";
 
         return OverloadAlertDTO.builder()
                 .active(true)
                 .bannerVariant(workload.isCritical() ? "critical" : "warning")
-                .title(workload.isCritical() ? "Sobrecarga crítica" : "Posible sobrecarga")
-                .message(String.format(
-                        "Tienes %d tareas (%d h estimadas) vs %d h disponibles esta semana.",
-                        workload.getTotalTasks(), requiredHours, availability.getTotalAvailableHours()))
+                .title(workload.isCritical() ? "Critical overload" : "Possible overload")
+                .message(String.format(Locale.US,
+                        "You have %d tasks (%.1f h estimated) vs %.1f h available this week.",
+                        workload.getTotalTasks(), requiredHours, availableHours))
+                .suggestedAction(suggestedAction)
                 .requiredHours(requiredHours)
-                .availableHours(availability.getTotalAvailableHours())
+                .availableHours(availableHours)
+                .overloadHours(overloadHours)
                 .build();
     }
 
@@ -114,16 +124,19 @@ public class AlertService {
         return LowGradeAlertDTO.builder()
                 .active(true)
                 .bannerVariant(critical ? "critical" : "warning")
-                .title("Bajo rendimiento académico")
+                .title("Low academic performance")
+                .alertTitle("Subjects at academic risk")
                 .message(String.format(Locale.US,
-                        "Tu promedio actual es %.1f (umbral mínimo: %.1f). Materias en riesgo: %s.",
+                        "Your current average is %.1f (minimum threshold: %.1f). Subjects at risk: %s.",
                         performance.getOverallAverage(), GRADE_THRESHOLD,
-                        atRiskSubjects.isEmpty() ? "ninguna" : String.join(", ", atRiskSubjects)))
+                        atRiskSubjects.isEmpty() ? "none" : String.join(", ", atRiskSubjects)))
                 .alertMessage(alertMessage)
+                .recommendation("Review each subject at risk and consult with your academic advisor.")
                 .subjectsAtRisk(atRiskSubjects)
                 .riskSubjects(riskSubjects)
                 .currentAverage(performance.getOverallAverage())
                 .threshold(GRADE_THRESHOLD)
+                .generatedDate(LocalDateTime.now())
                 .build();
     }
 
@@ -134,29 +147,37 @@ public class AlertService {
         return risks.stream()
                 .sorted(Comparator.comparingDouble(SubjectRiskData::getProjectedGrade))
                 .map(s -> RiskSubjectDTO.builder()
+                        .subjectId(s.getSubjectId())
                         .name(s.getName())
                         .projectedGrade(s.getProjectedGrade())
+                        .riskLevel(riskLevelFor(s.getProjectedGrade()))
                         .recommendation(recommendationFor(s.getProjectedGrade()))
                         .build())
                 .toList();
     }
 
+    private String riskLevelFor(double grade) {
+        if (grade < 2.0) return "Critical";
+        if (grade < 2.5) return "High";
+        return "Medium";
+    }
+
     private String recommendationFor(double grade) {
-        if (grade < 2.0) return "Busca asesoría académica inmediata para esta materia.";
-        if (grade < 2.5) return "Revisa las evaluaciones perdidas y busca refuerzo.";
-        return "Dedica más tiempo de estudio a esta materia.";
+        if (grade < 2.0) return "Seek immediate academic counseling for this subject.";
+        if (grade < 2.5) return "Review missed assessments and seek tutoring support.";
+        return "Dedicate more study time to this subject.";
     }
 
     private String buildAlertMessage(List<RiskSubjectDTO> riskSubjects, double average) {
         if (riskSubjects.isEmpty()) {
             return String.format(Locale.US,
-                    "Tu promedio de %.1f está por debajo del umbral. Revisa tu rendimiento.", average);
+                    "Your average of %.1f is below the threshold. Review your academic performance.", average);
         }
         String subjects = riskSubjects.stream()
                 .map(s -> String.format(Locale.US, "%s (%.1f)", s.getName(), s.getProjectedGrade()))
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("");
-        return String.format("Tienes %d materia(s) en riesgo: %s. Toma acción antes del próximo parcial.",
+        return String.format("You have %d subject(s) at risk: %s. Take action before the next exam.",
                 riskSubjects.size(), subjects);
     }
 }
