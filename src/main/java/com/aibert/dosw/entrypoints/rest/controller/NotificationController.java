@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,18 +45,18 @@ public class NotificationController {
     @PostMapping
     @Operation(
         summary = "Create a notification (internal microservice endpoint)",
-        description = "Called by other microservices (task-service, academic-service, planning-service, " +
-                      "social-service) to persist a notification for a user. " +
-                      "The `type` field controls how the mobile app renders the item. " +
-                      "This endpoint does NOT require the caller to be the recipient user."
+        description = """
+            Called by other microservices (task-service, academic-service, planning-service, \
+            social-service) to persist a notification for a user. \
+            The `type` field controls how the mobile app renders the item. \
+            This endpoint does NOT require the caller to be the recipient user.
+            """
     )
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Notification created successfully"),
-        @ApiResponse(responseCode = "400", description = "Validation error — missing or invalid fields",
-                     content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
-                     content = @Content(schema = @Schema(hidden = true)))
-    })
+    @ApiResponse(responseCode = "201", description = "Notification created successfully")
+    @ApiResponse(responseCode = "400", description = "Validation error — missing or invalid fields",
+                 content = @Content(schema = @Schema(hidden = true)))
+    @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                 content = @Content(schema = @Schema(hidden = true)))
     public ResponseEntity<NotificationResponse> create(
             @Valid @RequestBody CreateNotificationRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -67,15 +66,15 @@ public class NotificationController {
     @GetMapping("/me")
     @Operation(
         summary = "Get all my notifications",
-        description = "Returns the full notification history for the authenticated user, " +
-                      "sorted by creation date descending. Includes read and unread notifications " +
-                      "of all types (alerts, suggestions, invitations, reminders)."
+        description = """
+            Returns the full notification history for the authenticated user, \
+            sorted by creation date descending. Includes read and unread notifications \
+            of all types (alerts, suggestions, invitations, reminders).
+            """
     )
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "List of notifications returned successfully"),
-        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
-                     content = @Content(schema = @Schema(hidden = true)))
-    })
+    @ApiResponse(responseCode = "200", description = "List of notifications returned successfully")
+    @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                 content = @Content(schema = @Schema(hidden = true)))
     public ResponseEntity<List<NotificationResponse>> getMyNotifications(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.ok(getNotificationsPort.getByUser(principal.getUserId()));
@@ -84,14 +83,14 @@ public class NotificationController {
     @GetMapping("/me/unread")
     @Operation(
         summary = "Get my unread notifications",
-        description = "Returns only unread notifications for the authenticated user, " +
-                      "sorted by creation date descending. Use this to drive the notification badge count."
+        description = """
+            Returns only unread notifications for the authenticated user, \
+            sorted by creation date descending. Use this to drive the notification badge count.
+            """
     )
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Unread notifications returned successfully"),
-        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
-                     content = @Content(schema = @Schema(hidden = true)))
-    })
+    @ApiResponse(responseCode = "200", description = "Unread notifications returned successfully")
+    @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                 content = @Content(schema = @Schema(hidden = true)))
     public ResponseEntity<List<NotificationResponse>> getMyUnread(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.ok(getNotificationsPort.getUnreadByUser(principal.getUserId()));
@@ -100,15 +99,15 @@ public class NotificationController {
     @GetMapping("/me/count")
     @Operation(
         summary = "Get unread notification count",
-        description = "Returns the total number of unread notifications for the authenticated user. " +
-                      "Designed for lightweight polling to update the app notification badge without " +
-                      "fetching the full notification list."
+        description = """
+            Returns the total number of unread notifications for the authenticated user. \
+            Designed for lightweight polling to update the app notification badge without \
+            fetching the full notification list.
+            """
     )
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Unread count returned successfully"),
-        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
-                     content = @Content(schema = @Schema(hidden = true)))
-    })
+    @ApiResponse(responseCode = "200", description = "Unread count returned successfully")
+    @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                 content = @Content(schema = @Schema(hidden = true)))
     public ResponseEntity<UnreadCountResponse> getUnreadCount(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.ok(getNotificationsPort.countUnread(principal.getUserId()));
@@ -117,16 +116,16 @@ public class NotificationController {
     @GetMapping("/me/suggestions")
     @Operation(
         summary = "R23 — Get today's study suggestions",
-        description = "Returns study suggestion notifications generated for the current day. " +
-                      "If no suggestion exists yet, the service queries planning-service for today's plan " +
-                      "and persists a new STUDY_SUGGESTION notification before returning it. " +
-                      "Returns an empty list if no pending tasks are found."
+        description = """
+            Returns study suggestion notifications generated for the current day. \
+            If no suggestion exists yet, the service queries planning-service for today's plan \
+            and persists a new STUDY_SUGGESTION notification before returning it. \
+            Returns an empty list if no pending tasks are found.
+            """
     )
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Study suggestions returned (may be empty)"),
-        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
-                     content = @Content(schema = @Schema(hidden = true)))
-    })
+    @ApiResponse(responseCode = "200", description = "Study suggestions returned (may be empty)")
+    @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                 content = @Content(schema = @Schema(hidden = true)))
     public ResponseEntity<List<NotificationResponse>> getTodaySuggestions(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.ok(getStudySuggestionsPort.getTodaySuggestions(principal.getUserId()));
@@ -135,16 +134,16 @@ public class NotificationController {
     @GetMapping("/me/alerts")
     @Operation(
         summary = "R22 — Get active alert notifications",
-        description = "Returns overload and low-performance alert notifications created in the last 7 days. " +
-                      "If no alert was generated today, the service evaluates current workload and " +
-                      "academic performance in real time and persists a new notification if warranted. " +
-                      "Returns an empty list if no alerts are triggered."
+        description = """
+            Returns overload and low-performance alert notifications created in the last 7 days. \
+            If no alert was generated today, the service evaluates current workload and \
+            academic performance in real time and persists a new notification if warranted. \
+            Returns an empty list if no alerts are triggered.
+            """
     )
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Alert notifications returned (may be empty)"),
-        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
-                     content = @Content(schema = @Schema(hidden = true)))
-    })
+    @ApiResponse(responseCode = "200", description = "Alert notifications returned (may be empty)")
+    @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                 content = @Content(schema = @Schema(hidden = true)))
     public ResponseEntity<List<NotificationResponse>> getMyAlerts(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.ok(getAlertsPort.getActiveAlerts(principal.getUserId()));
@@ -153,16 +152,16 @@ public class NotificationController {
     @PutMapping("/{id}/read")
     @Operation(
         summary = "Mark a notification as read",
-        description = "Marks a single notification as read and records the read timestamp. " +
-                      "Returns 403 if the notification belongs to a different user."
+        description = """
+            Marks a single notification as read and records the read timestamp. \
+            Returns 403 if the notification belongs to a different user.
+            """
     )
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Notification marked as read"),
-        @ApiResponse(responseCode = "403", description = "Notification does not belong to the authenticated user",
-                     content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "404", description = "Notification not found",
-                     content = @Content(schema = @Schema(hidden = true)))
-    })
+    @ApiResponse(responseCode = "200", description = "Notification marked as read")
+    @ApiResponse(responseCode = "403", description = "Notification does not belong to the authenticated user",
+                 content = @Content(schema = @Schema(hidden = true)))
+    @ApiResponse(responseCode = "404", description = "Notification not found",
+                 content = @Content(schema = @Schema(hidden = true)))
     public ResponseEntity<NotificationResponse> markAsRead(
             @PathVariable Long id,
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
@@ -172,14 +171,14 @@ public class NotificationController {
     @PutMapping("/me/read-all")
     @Operation(
         summary = "Mark all notifications as read",
-        description = "Marks every unread notification for the authenticated user as read in a single operation. " +
-                      "Returns 204 No Content on success."
+        description = """
+            Marks every unread notification for the authenticated user as read in a single operation. \
+            Returns 204 No Content on success.
+            """
     )
-    @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "All notifications marked as read"),
-        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
-                     content = @Content(schema = @Schema(hidden = true)))
-    })
+    @ApiResponse(responseCode = "204", description = "All notifications marked as read")
+    @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                 content = @Content(schema = @Schema(hidden = true)))
     public ResponseEntity<Void> markAllAsRead(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
         markNotificationReadPort.markAllAsRead(principal.getUserId());
