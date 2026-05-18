@@ -15,30 +15,37 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Solicitud para crear una nueva notificación")
+@Schema(description = "Request body to create a new notification from an internal microservice")
 public class CreateNotificationRequest {
 
-    @NotNull(message = "El userId es obligatorio")
-    @Positive(message = "El userId debe ser positivo")
-    @Schema(description = "ID del usuario destinatario", example = "1")
+    @NotNull(message = "userId is required")
+    @Positive(message = "userId must be a positive number")
+    @Schema(description = "ID of the recipient user", example = "1")
     private Long userId;
 
-    @NotNull(message = "El tipo de notificación es obligatorio")
-    @Schema(description = "Tipo de notificación", example = "OVERLOAD_ALERT")
+    @NotNull(message = "Notification type is required")
+    @Schema(description = "Type of notification — controls how it is displayed in the mobile app",
+            example = "OVERLOAD_ALERT",
+            allowableValues = {"OVERLOAD_ALERT", "LOW_PERFORMANCE_ALERT", "STUDY_SUGGESTION",
+                               "TASK_REMINDER", "STUDY_SESSION_INVITE"})
     private NotificationType type;
 
-    @NotBlank(message = "El título es obligatorio")
-    @Schema(description = "Título de la notificación", example = "Sobrecarga detectada")
+    @NotBlank(message = "Title is required")
+    @Schema(description = "Short title displayed in the notification banner", example = "Academic overload alert")
     private String title;
 
-    @NotBlank(message = "El mensaje es obligatorio")
-    @Schema(description = "Cuerpo del mensaje", example = "Tienes más de 5 tareas urgentes para hoy.")
+    @NotBlank(message = "Message is required")
+    @Schema(description = "Full message body shown when the notification is expanded",
+            example = "You have 7 active tasks (5 urgent, 2 overdue). Consider redistributing your workload.")
     private String message;
 
-    @NotNull(message = "La severidad es obligatoria")
-    @Schema(description = "Severidad de la notificación", example = "HIGH")
+    @NotNull(message = "Severity is required")
+    @Schema(description = "Severity level that determines the visual style of the notification",
+            example = "HIGH",
+            allowableValues = {"HIGH", "MEDIUM", "LOW", "INFO"})
     private NotificationSeverity severity;
 
-    @Schema(description = "ID de la entidad relacionada (tarea, materia, etc.)", example = "42")
+    @Schema(description = "Optional ID of the related entity (task, subject, etc.) for deep-linking",
+            example = "42")
     private Long relatedEntityId;
 }

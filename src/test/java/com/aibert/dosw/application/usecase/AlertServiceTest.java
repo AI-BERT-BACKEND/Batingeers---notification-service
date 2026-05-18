@@ -46,7 +46,7 @@ class AlertServiceTest {
         OverloadAlertDTO result = alertService.evaluateOverloadAlert(userId);
 
         assertThat(result.isActive()).isFalse();
-        assertThat(result.getTitle()).contains("Sin disponibilidad");
+        assertThat(result.getTitle()).contains("not configured");
     }
 
     @Test
@@ -93,8 +93,8 @@ class AlertServiceTest {
 
         assertThat(result.isActive()).isTrue();
         assertThat(result.getBannerVariant()).isEqualTo("warning");
-        assertThat(result.getMessage()).contains("8 tareas");
-        assertThat(result.getSuggestedAction()).contains("Prioriza");
+        assertThat(result.getMessage()).contains("8 tasks");
+        assertThat(result.getSuggestedAction()).contains("Prioritize");
         assertThat(result.getRequiredHours()).isEqualTo(16.0);
         assertThat(result.getOverloadHours()).isEqualTo(6.0);
     }
@@ -116,7 +116,7 @@ class AlertServiceTest {
         assertThat(result.getRequiredHours()).isEqualTo(20.0);
         assertThat(result.getAvailableHours()).isEqualTo(10.0);
         assertThat(result.getOverloadHours()).isEqualTo(10.0);
-        assertThat(result.getSuggestedAction()).contains("reprogramar");
+        assertThat(result.getSuggestedAction()).contains("rescheduling");
     }
 
     @Test
@@ -174,7 +174,7 @@ class AlertServiceTest {
         assertThat(result.getBannerVariant()).isEqualTo("warning");
         assertThat(result.getSubjectsAtRisk()).contains("Cálculo I");
         assertThat(result.getMessage()).contains("2.8");
-        assertThat(result.getAlertTitle()).isEqualTo("Materias en riesgo académico");
+        assertThat(result.getAlertTitle()).isEqualTo("Subjects at academic risk");
         assertThat(result.getGeneratedDate()).isNotNull();
     }
 
@@ -268,9 +268,9 @@ class AlertServiceTest {
 
         LowGradeAlertDTO result = alertService.evaluateLowGradeAlert(userId);
 
-        assertThat(result.getRiskSubjects().get(0).getRiskLevel()).isEqualTo("Crítico");
-        assertThat(result.getRiskSubjects().get(1).getRiskLevel()).isEqualTo("Alto");
-        assertThat(result.getRiskSubjects().get(2).getRiskLevel()).isEqualTo("Medio");
+        assertThat(result.getRiskSubjects().get(0).getRiskLevel()).isEqualTo("Critical");
+        assertThat(result.getRiskSubjects().get(1).getRiskLevel()).isEqualTo("High");
+        assertThat(result.getRiskSubjects().get(2).getRiskLevel()).isEqualTo("Medium");
     }
 
     @Test
@@ -288,9 +288,9 @@ class AlertServiceTest {
 
         LowGradeAlertDTO result = alertService.evaluateLowGradeAlert(userId);
 
-        assertThat(result.getRiskSubjects().get(0).getRecommendation()).contains("asesoría académica");
-        assertThat(result.getRiskSubjects().get(1).getRecommendation()).contains("Revisa");
-        assertThat(result.getRiskSubjects().get(2).getRecommendation()).contains("tiempo de estudio");
+        assertThat(result.getRiskSubjects().get(0).getRecommendation()).contains("academic counseling");
+        assertThat(result.getRiskSubjects().get(1).getRecommendation()).contains("Review");
+        assertThat(result.getRiskSubjects().get(2).getRecommendation()).contains("study time");
     }
 
     @Test

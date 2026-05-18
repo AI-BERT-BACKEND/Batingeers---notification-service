@@ -38,9 +38,9 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
-                        fe -> fe.getDefaultMessage() != null ? fe.getDefaultMessage() : "inválido"));
+                        fe -> fe.getDefaultMessage() != null ? fe.getDefaultMessage() : "invalid"));
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST, "Error de validación en los campos enviados");
+                HttpStatus.BAD_REQUEST, "Validation error in the submitted fields");
         detail.setType(URI.create("validation-error"));
         detail.setProperty("fields", errors);
         return detail;
@@ -48,19 +48,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(FeignException.class)
     public ProblemDetail handleFeign(FeignException ex) {
-        log.error("Error de comunicación con microservicio externo: {}", ex.getMessage());
+        log.error("Communication error with external microservice: {}", ex.getMessage());
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.SERVICE_UNAVAILABLE,
-                "Servicio externo no disponible temporalmente. Intente nuevamente.");
+                "External service temporarily unavailable. Please try again.");
         detail.setType(URI.create("external-service-error"));
         return detail;
     }
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGeneric(Exception ex) {
-        log.error("Error inesperado: {}", ex.getMessage(), ex);
+        log.error("Unexpected error: {}", ex.getMessage(), ex);
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
+                HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
         detail.setType(URI.create("internal-error"));
         return detail;
     }

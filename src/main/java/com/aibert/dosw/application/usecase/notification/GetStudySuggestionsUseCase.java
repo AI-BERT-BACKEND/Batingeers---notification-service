@@ -53,7 +53,7 @@ public class GetStudySuggestionsUseCase implements GetStudySuggestionsPort {
                         return repository.save(suggestion);
                     });
         } catch (Exception ex) {
-            log.warn("No se pudo obtener el plan de hoy para userId={}: {}", userId, ex.getMessage());
+            log.warn("Could not retrieve today's plan for userId={}: {}", userId, ex.getMessage());
             return Optional.empty();
         }
     }
@@ -62,13 +62,13 @@ public class GetStudySuggestionsUseCase implements GetStudySuggestionsPort {
         String taskList = String.join(", ", plan.getSuggestedTaskTitles());
         String message = plan.getFocusMessage() != null && !plan.getFocusMessage().isBlank()
                 ? plan.getFocusMessage()
-                : "Para hoy se sugiere trabajar en: " + taskList
-                  + ". Tiempo estimado: " + plan.getTotalEstimatedMinutes() + " min.";
+                : "Suggested tasks for today: " + taskList
+                  + ". Estimated time: " + plan.getTotalEstimatedMinutes() + " min.";
 
         return Notification.builder()
                 .userId(userId)
                 .type(NotificationType.STUDY_SUGGESTION)
-                .title("¿Qué estudiar hoy?")
+                .title("What to study today?")
                 .message(message)
                 .severity(NotificationSeverity.INFO)
                 .read(false)

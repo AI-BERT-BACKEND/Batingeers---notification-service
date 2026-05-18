@@ -14,36 +14,38 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Respuesta con los datos de una notificación")
+@Schema(description = "Full notification object returned after creation or retrieval")
 public class NotificationResponse {
 
-    @Schema(description = "ID de la notificación", example = "1")
+    @Schema(description = "Unique notification identifier", example = "1")
     private Long id;
 
-    @Schema(description = "ID del usuario destinatario", example = "1")
+    @Schema(description = "ID of the recipient user", example = "1")
     private Long userId;
 
-    @Schema(description = "Tipo de notificación", example = "OVERLOAD_ALERT")
+    @Schema(description = "Notification category — determines how the app renders the item",
+            example = "OVERLOAD_ALERT")
     private NotificationType type;
 
-    @Schema(description = "Título de la notificación", example = "Sobrecarga detectada")
+    @Schema(description = "Short title shown in the notification banner", example = "Academic overload alert")
     private String title;
 
-    @Schema(description = "Mensaje de la notificación")
+    @Schema(description = "Full descriptive message body",
+            example = "You have 7 active tasks (5 urgent, 2 overdue). Consider redistributing your workload.")
     private String message;
 
-    @Schema(description = "Indica si fue leída", example = "false")
+    @Schema(description = "Whether the user has already read this notification", example = "false")
     private boolean read;
 
-    @Schema(description = "Severidad", example = "HIGH")
+    @Schema(description = "Severity level that controls visual styling", example = "HIGH")
     private NotificationSeverity severity;
 
-    @Schema(description = "ID de la entidad relacionada", example = "42")
+    @Schema(description = "ID of the related entity for deep-linking (task, subject, etc.)", example = "42")
     private Long relatedEntityId;
 
-    @Schema(description = "Fecha y hora de creación")
+    @Schema(description = "UTC timestamp when the notification was created")
     private LocalDateTime createdAt;
 
-    @Schema(description = "Fecha y hora en que fue leída")
+    @Schema(description = "UTC timestamp when the user marked this notification as read — null if unread")
     private LocalDateTime readAt;
 }

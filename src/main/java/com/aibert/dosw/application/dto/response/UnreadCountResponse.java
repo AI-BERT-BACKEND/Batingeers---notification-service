@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Cantidad de notificaciones no leídas")
+@Schema(description = "Count of unread notifications for a specific user")
 public class UnreadCountResponse {
 
-    @Schema(description = "ID del usuario", example = "1")
+    @Schema(description = "ID of the user whose unread notifications were counted", example = "1")
     private Long userId;
 
-    @Schema(description = "Total de notificaciones no leídas", example = "3")
+    @Schema(description = "Total number of unread notifications for this user", example = "3")
     private long count;
 }

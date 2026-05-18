@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -29,6 +28,6 @@ public class SocialServiceAdapter implements SocialServicePort {
                         .subjectName(dto.getSubjectName())
                         .scheduledAt(dto.getScheduledAt())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 }
