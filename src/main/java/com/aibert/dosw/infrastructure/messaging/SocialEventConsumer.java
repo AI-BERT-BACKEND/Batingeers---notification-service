@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import static com.aibert.dosw.infrastructure.messaging.EventConsumerUtils.parseSeverity;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -42,12 +44,4 @@ public class SocialEventConsumer {
         log.info("STUDY_SESSION_INVITE persisted from social.events: userId={}", event.getUserId());
     }
 
-    private NotificationSeverity parseSeverity(String raw) {
-        if (raw == null) return null;
-        try {
-            return NotificationSeverity.valueOf(raw.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
 }
