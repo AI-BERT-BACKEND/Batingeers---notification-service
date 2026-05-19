@@ -99,6 +99,7 @@ curl -X POST http://localhost:8083/api/v1/notifications \
 - `STUDY_SUGGESTION`
 - `TASK_REMINDER`
 - `STUDY_SESSION_INVITE`
+- `LEVEL_UP`
 
 **Valid values for `severity`:**
 - `HIGH`
@@ -285,36 +286,89 @@ Returns **204 No Content** when there are no pending tasks.
 
 ---
 
-## 5. Kafka — Send a notification event manually
+## 5. Kafka — Send events manually per topic
 
-To simulate another microservice sending a Kafka event, use the Kafka CLI
-(requires the Kafka container to be running):
+The notification service now listens on **5 independent topics**. Use the Kafka CLI to simulate events from each source microservice (requires the Kafka container to be running):
 
 ```bash
 # Enter the Kafka container
 docker exec -it kafka bash
-
-# Produce a message to the notification-events topic
-kafka-console-producer.sh \
-  --broker-list localhost:9092 \
-  --topic notification-events
 ```
 
-Then paste this JSON and press Enter:
+---
 
+### topic: `task.events` (task-service)
+
+```bash
+kafka-console-producer.sh --broker-list localhost:9092 --topic task.events
+```
+
+**TASK_REMINDER payload:**
 ```json
 {"userId":1,"type":"TASK_REMINDER","title":"Task reminder","message":"The task 'Algebra Workshop' is due tomorrow.","severity":"MEDIUM","relatedEntityId":42}
 ```
 
-Other valid event payloads:
-
+**OVERLOAD_ALERT payload:**
 ```json
-{"userId":1,"type":"OVERLOAD_ALERT","title":"Academic overload alert","message":"You have 7 active tasks (5 urgent, 2 overdue). Consider redistributing your workload.","severity":"HIGH","relatedEntityId":null}
+{"userId":1,"type":"OVERLOAD_ALERT","title":"Critical overload","message":"You have 10 tasks (20.0 h estimated) vs 8.0 h available this week.","severity":"HIGH","relatedEntityId":null}
 ```
 
+---
+
+### topic: `academic.events` (academic-service / stats-service)
+
+```bash
+kafka-console-producer.sh --broker-list localhost:9092 --topic academic.events
+```
+
+**LOW_PERFORMANCE_ALERT payload:**
+```json
+{"userId":1,"type":"LOW_PERFORMANCE_ALERT","title":"Low academic performance","message":"Your current average is 2.8 (minimum threshold: 3.0). Subjects at risk: Calculus I.","severity":"HIGH"}
+```
+
+---
+
+### topic: `planning.events` (planning-service)
+
+```bash
+kafka-console-producer.sh --broker-list localhost:9092 --topic planning.events
+```
+
+**STUDY_SUGGESTION payload:**
+```json
+{"userId":1,"type":"STUDY_SUGGESTION","title":"Algebra Workshop","message":"Priority 0.83: weight=3 (×0.6) + urgency 1/0.5 days (×0.4).","severity":"INFO","relatedEntityId":42}
+```
+
+---
+
+### topic: `social.events` (social-service)
+
+```bash
+kafka-console-producer.sh --broker-list localhost:9092 --topic social.events
+```
+
+**STUDY_SESSION_INVITE payload:**
 ```json
 {"userId":1,"type":"STUDY_SESSION_INVITE","title":"Study session invitation","message":"Carlos Lopez has invited you to a Calculus I study session on Friday at 4 PM.","severity":"LOW","relatedEntityId":7}
 ```
+
+---
+
+### topic: `gamification.events` (gamification-service)
+
+```bash
+kafka-console-producer.sh --broker-list localhost:9092 --topic gamification.events
+```
+
+**LEVEL_UP payload:**
+```json
+{"userId":1,"newLevelNumber":5,"previousLevelNumber":4,"levelName":"Scholar"}
+```
+
+> The notification service generates the title and message automatically:
+> - Title: `"Level Up! You've reached level 5: Scholar"`
+> - Message: `"Congratulations! You advanced from level 4 to level 5. Keep it up!"`
+> - Severity: `INFO`
 
 ---
 

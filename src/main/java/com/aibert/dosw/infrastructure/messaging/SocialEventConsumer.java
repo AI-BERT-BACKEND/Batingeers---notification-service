@@ -4,7 +4,7 @@ import com.aibert.dosw.application.dto.request.CreateNotificationRequest;
 import com.aibert.dosw.domain.model.notification.NotificationSeverity;
 import com.aibert.dosw.domain.model.notification.NotificationType;
 import com.aibert.dosw.domain.ports.in.CreateNotificationPort;
-import com.aibert.dosw.infrastructure.messaging.event.NotificationEvent;
+import com.aibert.dosw.infrastructure.messaging.event.SocialEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -13,44 +13,33 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class NotificationEventConsumer {
+public class SocialEventConsumer {
 
-    static final String TOPIC_NOTIFICATION_EVENTS = "notification-events";
+    static final String TOPIC = "social.events";
 
     private final CreateNotificationPort createNotificationPort;
 
-    @KafkaListener(topics = TOPIC_NOTIFICATION_EVENTS, groupId = "notification-service")
-    public void consume(NotificationEvent event) {
-        log.info("Kafka event received: type={} userId={}", event.getType(), event.getUserId());
+    @KafkaListener(topics = TOPIC, groupId = "notification-service")
+    public void consume(SocialEvent event) {
+        log.info("Kafka social event received: type={} userId={}", event.getType(), event.getUserId());
 
-        NotificationType type = parseType(event.getType());
         NotificationSeverity severity = parseSeverity(event.getSeverity());
 
-        if (type == null || severity == null) {
-            log.warn("Discarding event with unknown type={} or severity={}", event.getType(), event.getSeverity());
+        if (severity == null) {
+            log.warn("Discarding social event with unknown severity={}", event.getSeverity());
             return;
         }
 
-        CreateNotificationRequest request = CreateNotificationRequest.builder()
+        createNotificationPort.create(CreateNotificationRequest.builder()
                 .userId(event.getUserId())
-                .type(type)
+                .type(NotificationType.STUDY_SESSION_INVITE)
                 .title(event.getTitle())
                 .message(event.getMessage())
                 .severity(severity)
                 .relatedEntityId(event.getRelatedEntityId())
-                .build();
+                .build());
 
-        createNotificationPort.create(request);
-        log.info("Notification persisted from Kafka event: type={} userId={}", type, event.getUserId());
-    }
-
-    private NotificationType parseType(String raw) {
-        if (raw == null) return null;
-        try {
-            return NotificationType.valueOf(raw.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        log.info("STUDY_SESSION_INVITE persisted from social.events: userId={}", event.getUserId());
     }
 
     private NotificationSeverity parseSeverity(String raw) {
