@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -18,7 +19,7 @@ public class ProfileServiceAdapter implements ProfileServicePort {
     private final ProfileServiceClient profileServiceClient;
 
     @Override
-    public Optional<ProfileDto> getUserProfile(Long userId) {
+    public Optional<ProfileDto> getUserProfile(UUID userId) {
         try {
             return Optional.ofNullable(profileServiceClient.getUserProfile(userId));
         } catch (FeignException e) {

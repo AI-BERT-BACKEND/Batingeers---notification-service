@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.UUID;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -23,7 +24,7 @@ public class DailyStudyService implements GetDailySuggestionPort {
     private final NotificationRepositoryPort notificationRepository;
 
     @Override
-    public Optional<StudySuggestionDTO> getSuggestion(Long userId) {
+    public Optional<StudySuggestionDTO> getSuggestion(UUID userId) {
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         List<Notification> suggestions = notificationRepository
                 .findByUserIdAndTypeAndCreatedAtAfter(userId, NotificationType.STUDY_SUGGESTION, startOfDay);

@@ -6,13 +6,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanningEvent {
-    private Long userId;
+    private UUID userId;
     /** STUDY_SUGGESTION or OVERLOAD_ALERT */
     private String type;
     private String title;

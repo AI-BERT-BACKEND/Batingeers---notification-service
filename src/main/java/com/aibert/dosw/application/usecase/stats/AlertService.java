@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -25,7 +26,7 @@ public class AlertService {
 
     private final NotificationRepositoryPort notificationRepository;
 
-    public OverloadAlertDTO evaluateOverloadAlert(Long userId) {
+    public OverloadAlertDTO evaluateOverloadAlert(UUID userId) {
         LocalDateTime since = LocalDateTime.now().minusHours(24);
         List<Notification> alerts = notificationRepository
                 .findByUserIdAndTypeAndCreatedAtAfter(userId, NotificationType.OVERLOAD_ALERT, since);
@@ -53,7 +54,7 @@ public class AlertService {
                 .build();
     }
 
-    public LowGradeAlertDTO evaluateLowGradeAlert(Long userId) {
+    public LowGradeAlertDTO evaluateLowGradeAlert(UUID userId) {
         LocalDateTime since = LocalDateTime.now().minusHours(24);
         List<Notification> alerts = notificationRepository
                 .findByUserIdAndTypeAndCreatedAtAfter(userId, NotificationType.LOW_PERFORMANCE_ALERT, since);

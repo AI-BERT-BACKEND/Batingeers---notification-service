@@ -5,11 +5,12 @@ import com.aibert.dosw.domain.model.notification.NotificationType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Getter
 @Builder
@@ -19,9 +20,8 @@ import lombok.NoArgsConstructor;
 public class CreateNotificationRequest {
 
     @NotNull(message = "userId is required")
-    @Positive(message = "userId must be a positive number")
-    @Schema(description = "ID of the recipient user", example = "1")
-    private Long userId;
+    @Schema(description = "ID of the recipient user", example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+    private UUID userId;
 
     @NotNull(message = "Notification type is required")
     @Schema(description = "Type of notification — controls how it is displayed in the mobile app",

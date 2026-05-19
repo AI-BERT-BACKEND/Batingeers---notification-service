@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -22,7 +23,7 @@ public class GetStudySuggestionsUseCase implements GetStudySuggestionsPort {
     private final NotificationMapper mapper;
 
     @Override
-    public List<NotificationResponse> getTodaySuggestions(Long userId) {
+    public List<NotificationResponse> getTodaySuggestions(UUID userId) {
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         return mapper.toResponseList(
                 repository.findByUserIdAndTypeAndCreatedAtAfter(

@@ -3,7 +3,8 @@ package com.aibert.dosw.domain.ports.in;
 import com.aibert.dosw.application.dto.response.NotificationResponse;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface GetStudySuggestionsPort {
-    List<NotificationResponse> getTodaySuggestions(Long userId);
+    List<NotificationResponse> getTodaySuggestions(UUID userId);
 }

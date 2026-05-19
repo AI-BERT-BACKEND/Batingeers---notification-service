@@ -6,13 +6,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SocialEvent {
-    private Long userId;
+    private UUID userId;
     /** Always STUDY_SESSION_INVITE */
     private String type;
     private String title;

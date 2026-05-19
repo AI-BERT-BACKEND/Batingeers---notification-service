@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -26,7 +27,7 @@ public class GetAlertsUseCase implements GetAlertsPort {
     );
 
     @Override
-    public List<NotificationResponse> getActiveAlerts(Long userId) {
+    public List<NotificationResponse> getActiveAlerts(UUID userId) {
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
         return mapper.toResponseList(
                 repository.findByUserIdAndTypeInAndCreatedAtAfter(userId, ALERT_TYPES, sevenDaysAgo));
