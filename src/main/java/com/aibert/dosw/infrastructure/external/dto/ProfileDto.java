@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class WorkloadDto {
+public class ProfileDto {
     private Long userId;
-    private int totalTasks;
-    private int urgentTasks;
-    private int overdueTasks;
-    private String workloadLevel;
+    private String username;
+    private String email;
+    private String fullName;
+    private String role;
 }

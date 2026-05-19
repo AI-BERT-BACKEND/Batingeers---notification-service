@@ -60,7 +60,7 @@
 
 ## 2. 🎯 Objetivo del Microservicio
 
-El microservicio de Notificaciones tiene como objetivo centralizar la generación, almacenamiento y entrega de alertas académicas para los estudiantes dentro de la plataforma AIBERT. Este servicio recibe eventos de otros microservicios a través de Apache Kafka, los persiste en PostgreSQL y los expone mediante una API REST protegida con JWT. Además, evalúa en tiempo real el estado de carga de tareas y rendimiento académico del estudiante para generar alertas proactivas de sobrecarga (AIB-33) y bajo rendimiento (AIB-34), así como sugerencias de qué estudiar cada día (R23). Se integra con los microservicios de Tareas, Académico, Planificación y Social a través de clientes Feign para obtener el contexto necesario.
+El microservicio de Notificaciones tiene como objetivo centralizar la generación, almacenamiento y entrega de alertas académicas para los estudiantes dentro de la plataforma AIBERT. Este servicio opera de forma completamente event-driven: recibe eventos de otros microservicios a través de cinco topics de Apache Kafka independientes (`task.events`, `academic.events`, `planning.events`, `social.events`, `gamification.events`), los persiste en PostgreSQL y los expone mediante una API REST protegida con JWT. Genera alertas proactivas de sobrecarga (AIB-33), bajo rendimiento (AIB-34), sugerencias de estudio diario (R23), y notificaciones de subida de nivel desde el microservicio de gamificación. Se integra con profile-service a través de Feign para resolver contexto de usuario cuando sea necesario.
 
 ---
 
@@ -81,24 +81,28 @@ El microservicio de Notificaciones tiene como objetivo centralizar la generació
       <td>Creación, consulta y marcado como leída de notificaciones persistidas en PostgreSQL. Soporta filtrado por notificaciones no leídas y conteo.</td>
     </tr>
     <tr>
-      <td><strong>Consumo de Eventos Kafka</strong></td>
-      <td>Escucha el topic <code>notification-events</code> para recibir eventos de otros microservicios (recordatorios de tareas, invitaciones de estudio, etc.) y persistirlos como notificaciones.</td>
+      <td><strong>Consumo de Eventos Kafka (Event-Driven)</strong></td>
+      <td>Escucha cinco topics independientes: <code>task.events</code> (sobrecarga y recordatorios de tareas), <code>academic.events</code> (bajo rendimiento), <code>planning.events</code> (sugerencias y sobrecarga de planning), <code>social.events</code> (invitaciones de estudio) y <code>gamification.events</code> (subida de nivel). No realiza llamadas síncronas a esos microservicios.</td>
     </tr>
     <tr>
       <td><strong>Alerta de Sobrecarga (AIB-33)</strong></td>
-      <td>Evalúa en tiempo real la carga de tareas del estudiante frente a su disponibilidad semanal configurada y genera una alerta con variante <em>warning</em> o <em>critical</em> según la gravedad.</td>
+      <td>Persiste alertas de tipo <code>OVERLOAD_ALERT</code> recibidas desde <code>task.events</code> o <code>planning.events</code>, y las expone mediante el endpoint de stats consultando las notificaciones almacenadas en las últimas 24 h.</td>
     </tr>
     <tr>
       <td><strong>Alerta de Bajo Rendimiento (AIB-34)</strong></td>
-      <td>Evalúa el promedio académico y las materias en riesgo del estudiante. Devuelve una lista priorizada de materias con nota proyectada y recomendación de acción personalizada.</td>
+      <td>Persiste alertas de tipo <code>LOW_PERFORMANCE_ALERT</code> recibidas desde <code>academic.events</code> y las expone mediante el endpoint de stats consultando las notificaciones almacenadas en las últimas 24 h.</td>
     </tr>
     <tr>
       <td><strong>Sugerencia de Estudio Diario (R23)</strong></td>
-      <td>Aplica una fórmula de priorización (peso × 0.6 + 1/días × 0.4) sobre las tareas pendientes para recomendar qué materia estudiar primero hoy.</td>
+      <td>Persiste sugerencias de tipo <code>STUDY_SUGGESTION</code> recibidas desde <code>planning.events</code> y retorna la más reciente del día actual mediante el endpoint de stats.</td>
     </tr>
     <tr>
-      <td><strong>Integración vía Feign</strong></td>
-      <td>Comunicación síncrona con task-service, academic-service, planning-service y social-service para obtener el contexto necesario en la evaluación de alertas.</td>
+      <td><strong>Notificación de Subida de Nivel (Gamificación)</strong></td>
+      <td>Consume eventos del topic <code>gamification.events</code> publicados por el microservicio de gamificación cuando un estudiante sube de nivel. Persiste una notificación de tipo <code>LEVEL_UP</code> con el nombre del nuevo nivel y un mensaje motivacional.</td>
+    </tr>
+    <tr>
+      <td><strong>Integración vía Feign (profile-service)</strong></td>
+      <td>Comunicación síncrona con profile-service (<code>GET /api/v1/profiles/{userId}</code>) para resolver contexto de usuario. Es la única integración HTTP del servicio; el resto opera por Kafka.</td>
     </tr>
   </tbody>
 </table>
@@ -407,22 +411,43 @@ Retorna `204 No Content` si no hay tareas pendientes.
 
 ---
 
-### 9️⃣ Integración Kafka — Consumo de Eventos
+### 9️⃣ Integración Kafka — Consumo de Eventos (Event-Driven Architecture)
 
-El microservicio escucha el topic `notification-events`. Cualquier microservicio del ecosistema AIBERT puede publicar un evento con el siguiente formato:
+El microservicio opera de forma completamente event-driven. Escucha **cinco topics independientes**, uno por microservicio origen. No realiza llamadas síncronas HTTP a esos servicios.
 
+| Topic | Publicado por | Tipos de notificación generados |
+|---|---|---|
+| `task.events` | task-service | `OVERLOAD_ALERT`, `TASK_REMINDER` |
+| `academic.events` | academic-service / stats-service | `LOW_PERFORMANCE_ALERT` |
+| `planning.events` | planning-service | `STUDY_SUGGESTION`, `OVERLOAD_ALERT` |
+| `social.events` | social-service | `STUDY_SESSION_INVITE` |
+| `gamification.events` | gamification-service | `LEVEL_UP` |
+
+**Formato para `task.events`, `academic.events`, `planning.events`, `social.events`:**
 ```json
 {
   "userId": 1,
   "type": "TASK_REMINDER",
-  "title": "Tarea próxima a vencer",
-  "message": "Tu tarea 'Parcial Cálculo' vence mañana.",
+  "title": "Task reminder",
+  "message": "The task 'Algebra Workshop' is due tomorrow.",
   "severity": "HIGH",
   "relatedEntityId": 42
 }
 ```
 
-Eventos con `type` o `severity` desconocidos o nulos son **descartados** con un log de advertencia y no generan ninguna notificación.
+**Formato para `gamification.events` (subida de nivel):**
+```json
+{
+  "userId": 1,
+  "newLevelNumber": 5,
+  "previousLevelNumber": 4,
+  "levelName": "Scholar"
+}
+```
+
+Eventos con `type` o `severity` desconocidos o nulos son **descartados** con un log de advertencia y no generan ninguna notificación. El campo `relatedEntityId` es opcional.
+
+**Nota sobre stats-service (Python):** el microservicio de estadísticas y dashboard académico debe publicar sus eventos de rendimiento al topic `academic.events`. No se requiere conexión HTTP directa desde el notification-service hacia el stats-service.
 
 ---
 
@@ -524,12 +549,12 @@ Distribución de responsabilidades del microservicio por capas.
 
 **Componentes clave:**
 - **Entrada REST:** `NotificationController`, `AlertController`, `SuggestionController`
-- **Entrada Kafka:** `NotificationEventConsumer`
+- **Entrada Kafka:** `TaskEventConsumer`, `AcademicEventConsumer`, `PlanningEventConsumer`, `SocialEventConsumer`, `GamificationEventConsumer`
 - **Casos de Uso:** `CreateNotificationUseCase`, `GetNotificationsUseCase`, `AlertService`, `DailyStudyService`, `NotificationDispatcher`
-- **Dominio:** `Notification`, `NotificationType`, `NotificationSeverity`, `UserId`
+- **Dominio:** `Notification`, `NotificationType` (`OVERLOAD_ALERT`, `LOW_PERFORMANCE_ALERT`, `STUDY_SUGGESTION`, `TASK_REMINDER`, `STUDY_SESSION_INVITE`, `LEVEL_UP`), `NotificationSeverity`
 - **Puertos In:** `CreateNotificationPort`, `GetNotificationsPort`, `MarkNotificationReadPort`, `GetStatsAlertsPort`, `GetDailySuggestionPort`
-- **Puertos Out:** `NotificationRepositoryPort`, `TaskServicePort`, `AcademicServicePort`, `WeeklyAvailabilityPort`, `PlanningServicePort`, `SocialServicePort`
-- **Adaptadores Out:** `NotificationRepositoryAdapter`, `TaskServiceAdapter`, `AcademicServiceAdapter`, `PlanningServiceAdapter`, `SocialServiceAdapter`
+- **Puertos Out:** `NotificationRepositoryPort`, `ProfileServicePort`
+- **Adaptadores Out:** `NotificationRepositoryAdapter`, `ProfileServiceAdapter` (Feign → profile-service)
 
 ---
 

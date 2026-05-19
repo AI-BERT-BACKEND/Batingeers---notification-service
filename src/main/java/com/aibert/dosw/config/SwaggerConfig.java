@@ -35,9 +35,13 @@ public class SwaggerConfig {
                                 task/subject pair.
                                 - **Notification inbox:** stores, retrieves, and marks notifications as read \
                                 for the authenticated user.
-                                - **Kafka consumer:** listens on topic `notification-events` to receive \
-                                push notifications from other microservices (task-service, academic-service, \
-                                planning-service, social-service).
+                                - **Kafka consumers (event-driven):** listens on five independent topics — \
+                                `task.events` (OVERLOAD_ALERT, TASK_REMINDER), `academic.events` (LOW_PERFORMANCE_ALERT), \
+                                `planning.events` (STUDY_SUGGESTION, OVERLOAD_ALERT), `social.events` (STUDY_SESSION_INVITE), \
+                                and `gamification.events` (LEVEL_UP). Each source microservice publishes events; \
+                                the notification service persists them without making synchronous calls.
+                                - **Profile integration (Feign):** connects to profile-service \
+                                (`GET /api/v1/profiles/{userId}`) to resolve user context when needed.
 
                                 **Authentication:** all endpoints require a Bearer JWT token issued by the \
                                 auth service. Use the Authorize button to set your token.
