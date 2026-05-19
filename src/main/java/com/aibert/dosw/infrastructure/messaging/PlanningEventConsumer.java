@@ -10,7 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 import static com.aibert.dosw.infrastructure.messaging.EventConsumerUtils.parseSeverity;
+import static com.aibert.dosw.infrastructure.messaging.EventConsumerUtils.parseType;
 
 @Slf4j
 @Component
@@ -25,7 +28,8 @@ public class PlanningEventConsumer {
     public void consume(PlanningEvent event) {
         log.info("Kafka planning event received: type={} userId={}", event.getType(), event.getUserId());
 
-        NotificationType type = parseType(event.getType());
+        NotificationType type = parseType(event.getType(),
+                Set.of(NotificationType.STUDY_SUGGESTION, NotificationType.OVERLOAD_ALERT), TOPIC);
         NotificationSeverity severity = parseSeverity(event.getSeverity());
 
         if (type == null || severity == null) {
@@ -43,18 +47,6 @@ public class PlanningEventConsumer {
                 .build());
 
         log.info("Notification persisted from planning.events: type={} userId={}", type, event.getUserId());
-    }
-
-    private NotificationType parseType(String raw) {
-        if (raw == null) return null;
-        try {
-            NotificationType type = NotificationType.valueOf(raw.toUpperCase());
-            if (type == NotificationType.STUDY_SUGGESTION || type == NotificationType.OVERLOAD_ALERT) return type;
-            log.warn("Unexpected notification type for planning.events: {}", raw);
-            return null;
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
     }
 
 }
