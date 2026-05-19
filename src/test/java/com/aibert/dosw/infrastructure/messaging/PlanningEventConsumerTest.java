@@ -8,10 +8,15 @@ import com.aibert.dosw.infrastructure.messaging.event.PlanningEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -66,47 +71,21 @@ class PlanningEventConsumerTest {
         assertThat(captor.getValue().getSeverity()).isEqualTo(NotificationSeverity.HIGH);
     }
 
-    @Test
-    @DisplayName("TASK_REMINDER (not allowed for planning.events) → event discarded")
-    void unallowedType_eventDiscarded() {
-        PlanningEvent event = PlanningEvent.builder()
-                .userId(1L).type("TASK_REMINDER").title("title").message("msg").severity("INFO")
-                .build();
-
-        consumer.consume(event);
-
-        verify(createNotificationPort, never()).create(any());
+    static Stream<Arguments> invalidEvents() {
+        return Stream.of(
+                Arguments.of("TASK_REMINDER", "INFO",  "unallowed type for planning.events"),
+                Arguments.of(null,            "INFO",  "null type"),
+                Arguments.of("STUDY_SUGGESTION", null, "null severity"),
+                Arguments.of("STUDY_SUGGESTION", "BAD","unknown severity")
+        );
     }
 
-    @Test
-    @DisplayName("null type → event discarded")
-    void nullType_eventDiscarded() {
+    @ParameterizedTest(name = "{2} → event discarded")
+    @MethodSource("invalidEvents")
+    @DisplayName("invalid events → no notification created")
+    void invalidEvent_eventDiscarded(String type, String severity, String scenario) {
         PlanningEvent event = PlanningEvent.builder()
-                .userId(1L).type(null).title("title").message("msg").severity("INFO")
-                .build();
-
-        consumer.consume(event);
-
-        verify(createNotificationPort, never()).create(any());
-    }
-
-    @Test
-    @DisplayName("null severity → event discarded")
-    void nullSeverity_eventDiscarded() {
-        PlanningEvent event = PlanningEvent.builder()
-                .userId(1L).type("STUDY_SUGGESTION").title("title").message("msg").severity(null)
-                .build();
-
-        consumer.consume(event);
-
-        verify(createNotificationPort, never()).create(any());
-    }
-
-    @Test
-    @DisplayName("unknown severity → event discarded")
-    void unknownSeverity_eventDiscarded() {
-        PlanningEvent event = PlanningEvent.builder()
-                .userId(1L).type("STUDY_SUGGESTION").title("title").message("msg").severity("BAD")
+                .userId(1L).type(type).title("title").message("msg").severity(severity)
                 .build();
 
         consumer.consume(event);
