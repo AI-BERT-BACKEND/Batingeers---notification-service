@@ -31,13 +31,14 @@ class SocialEventConsumerTest {
 
     private static final UUID USER_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID RELATED_ID = UUID.fromString("00000000-0000-0000-0000-000000000020");
 
     @Test
-    @DisplayName("valid social event → creates STUDY_SESSION_INVITE notification")
-    void validEvent_createsStudySessionInvite() {
+    @DisplayName("STUDY_SESSION_INVITE event → creates notification")
+    void studySessionInvite_createsNotification() {
         SocialEvent event = SocialEvent.builder()
                 .userId(USER_ID_1).type("STUDY_SESSION_INVITE").title("Study group tonight")
-                .message("Join us at 8pm").severity("LOW").relatedEntityId(20L)
+                .message("Join us at 8pm").severity("LOW").relatedEntityId(RELATED_ID)
                 .build();
 
         consumer.consume(event);
@@ -51,7 +52,41 @@ class SocialEventConsumerTest {
         assertThat(req.getType()).isEqualTo(NotificationType.STUDY_SESSION_INVITE);
         assertThat(req.getSeverity()).isEqualTo(NotificationSeverity.LOW);
         assertThat(req.getTitle()).isEqualTo("Study group tonight");
-        assertThat(req.getRelatedEntityId()).isEqualTo(20L);
+        assertThat(req.getRelatedEntityId()).isEqualTo(RELATED_ID);
+    }
+
+    @Test
+    @DisplayName("CONNECTION_REQUEST_RECEIVED event → creates notification")
+    void connectionRequestReceived_createsNotification() {
+        SocialEvent event = SocialEvent.builder()
+                .userId(USER_ID_1).type("CONNECTION_REQUEST_RECEIVED").title("Nueva solicitud")
+                .message("Alguien quiere conectar contigo").severity("INFO").relatedEntityId(RELATED_ID)
+                .build();
+
+        consumer.consume(event);
+
+        ArgumentCaptor<CreateNotificationRequest> captor =
+                ArgumentCaptor.forClass(CreateNotificationRequest.class);
+        verify(createNotificationPort).create(captor.capture());
+
+        assertThat(captor.getValue().getType()).isEqualTo(NotificationType.CONNECTION_REQUEST_RECEIVED);
+    }
+
+    @Test
+    @DisplayName("CONNECTION_REQUEST_ACCEPTED event → creates notification")
+    void connectionRequestAccepted_createsNotification() {
+        SocialEvent event = SocialEvent.builder()
+                .userId(USER_ID_2).type("CONNECTION_REQUEST_ACCEPTED").title("Solicitud aceptada")
+                .message("Tu solicitud fue aceptada").severity("INFO").relatedEntityId(RELATED_ID)
+                .build();
+
+        consumer.consume(event);
+
+        ArgumentCaptor<CreateNotificationRequest> captor =
+                ArgumentCaptor.forClass(CreateNotificationRequest.class);
+        verify(createNotificationPort).create(captor.capture());
+
+        assertThat(captor.getValue().getType()).isEqualTo(NotificationType.CONNECTION_REQUEST_ACCEPTED);
     }
 
     @Test
@@ -88,6 +123,18 @@ class SocialEventConsumerTest {
     void unknownSeverity_eventDiscarded() {
         SocialEvent event = SocialEvent.builder()
                 .userId(USER_ID_1).type("STUDY_SESSION_INVITE").title("title").message("msg").severity("EXTREME")
+                .build();
+
+        consumer.consume(event);
+
+        verify(createNotificationPort, never()).create(any());
+    }
+
+    @Test
+    @DisplayName("unknown type → event discarded")
+    void unknownType_eventDiscarded() {
+        SocialEvent event = SocialEvent.builder()
+                .userId(USER_ID_1).type("OVERLOAD_ALERT").title("title").message("msg").severity("INFO")
                 .build();
 
         consumer.consume(event);

@@ -52,8 +52,8 @@ public class NotificationEntity {
     @Column(name = "severity", nullable = false, length = 20)
     private NotificationSeverity severity;
 
-    @Column(name = "related_entity_id")
-    private Long relatedEntityId;
+    @Column(name = "related_entity_id", columnDefinition = "uuid")
+    private UUID relatedEntityId;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

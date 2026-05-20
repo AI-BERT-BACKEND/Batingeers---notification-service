@@ -23,7 +23,7 @@ public class Notification {
     private String message;
     private boolean read;
     private NotificationSeverity severity;
-    private Long relatedEntityId;
+    private UUID relatedEntityId;
     private LocalDateTime createdAt;
     private LocalDateTime readAt;
 }

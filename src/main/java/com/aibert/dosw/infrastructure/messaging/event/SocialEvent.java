@@ -15,10 +15,10 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SocialEvent {
     private UUID userId;
-    /** Always STUDY_SESSION_INVITE */
+    /** STUDY_SESSION_INVITE, CONNECTION_REQUEST_RECEIVED or CONNECTION_REQUEST_ACCEPTED */
     private String type;
     private String title;
     private String message;
     private String severity;
-    private Long relatedEntityId;
+    private UUID relatedEntityId;
 }

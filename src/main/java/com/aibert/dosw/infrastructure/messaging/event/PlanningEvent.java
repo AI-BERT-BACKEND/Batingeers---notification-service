@@ -20,5 +20,5 @@ public class PlanningEvent {
     private String title;
     private String message;
     private String severity;
-    private Long relatedEntityId;
+    private UUID relatedEntityId;
 }
