@@ -23,6 +23,7 @@ import java.security.Key;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -35,35 +36,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        String userId = request.getHeader("X-User-Id");
+        String userEmail = request.getHeader("X-User-Email");
+        String userRole = request.getHeader("X-User-Role");
 
-        String token = authHeader.substring(7);
-        try {
-            Claims claims = extractClaims(token);
-            if (claims != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                String username = claims.getSubject();
-                UUID userId = UUID.fromString(claims.get("userId", String.class));
-                List<String> roles = claims.get("roles", List.class);
+        if (userId != null && userEmail != null) {
+            log.info("Request authenticated via Gateway → userId: {}, email: {}", userId, userEmail);
 
-                List<SimpleGrantedAuthority> authorities = roles == null
-                        ? Collections.emptyList()
-                        : roles.stream()
+            List<SimpleGrantedAuthority> authorities = userRole != null
+                    ? List.of(new SimpleGrantedAuthority(userRole))
+                    : Collections.emptyList();
+
+            UserPrincipal principal = new UserPrincipal(UUID.fromString(userId), userEmail);
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(principal, null, authorities);
+            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+        } else {
+            String authHeader = request.getHeader("Authorization");
+
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                try {
+                    Claims claims = extractClaims(token);
+                    if (claims != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        String username = claims.getSubject();
+                        String userIdFromToken = claims.get("userId", String.class);
+                        List<String> roles = claims.get("roles", List.class);
+
+                        List<SimpleGrantedAuthority> authorities = roles == null
+                                ? Collections.emptyList()
+                                : roles.stream()
                                 .map(SimpleGrantedAuthority::new)
-                                .toList();
+                                .collect(Collectors.toList());
 
-                UserPrincipal principal = new UserPrincipal(userId, username);
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(principal, null, authorities);
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                        UserPrincipal principal = new UserPrincipal(UUID.fromString(userIdFromToken), username);
+                        UsernamePasswordAuthenticationToken auth =
+                                new UsernamePasswordAuthenticationToken(principal, null, authorities);
+                        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
+                } catch (JwtException ex) {
+                    log.warn("Token JWT inválido: {}", ex.getMessage());
+                }
             }
-        } catch (JwtException ex) {
-            log.warn("Invalid JWT token: {}", ex.getMessage());
         }
 
         filterChain.doFilter(request, response);
