@@ -35,20 +35,22 @@ class GetAlertsUseCaseTest {
     @InjectMocks
     private GetAlertsUseCase useCase;
 
-    private final UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private final UUID userId    = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID NOTIF_ID_1 = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000001");
+    private static final UUID NOTIF_ID_2 = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000002");
 
     @Test
     @DisplayName("returns stored alert notifications from the last 7 days")
     void returnsStoredAlerts() {
         Notification alert = Notification.builder()
-                .id(1L).userId(userId)
+                .id(NOTIF_ID_1).userId(userId)
                 .type(NotificationType.OVERLOAD_ALERT)
                 .severity(NotificationSeverity.HIGH)
                 .createdAt(LocalDateTime.now().minusDays(1))
                 .build();
 
         NotificationResponse response = NotificationResponse.builder()
-                .id(1L).type(NotificationType.OVERLOAD_ALERT).build();
+                .id(NOTIF_ID_1).type(NotificationType.OVERLOAD_ALERT).build();
 
         when(repository.findByUserIdAndTypeInAndCreatedAtAfter(eq(userId), anyList(), any()))
                 .thenReturn(List.of(alert));
@@ -76,17 +78,17 @@ class GetAlertsUseCaseTest {
     @DisplayName("returns both OVERLOAD_ALERT and LOW_PERFORMANCE_ALERT types")
     void returnsBothAlertTypes() {
         Notification overload = Notification.builder()
-                .id(1L).userId(userId).type(NotificationType.OVERLOAD_ALERT)
+                .id(NOTIF_ID_1).userId(userId).type(NotificationType.OVERLOAD_ALERT)
                 .severity(NotificationSeverity.HIGH).createdAt(LocalDateTime.now().minusHours(2)).build();
         Notification lowGrade = Notification.builder()
-                .id(2L).userId(userId).type(NotificationType.LOW_PERFORMANCE_ALERT)
+                .id(NOTIF_ID_2).userId(userId).type(NotificationType.LOW_PERFORMANCE_ALERT)
                 .severity(NotificationSeverity.MEDIUM).createdAt(LocalDateTime.now().minusHours(1)).build();
 
         when(repository.findByUserIdAndTypeInAndCreatedAtAfter(eq(userId), anyList(), any()))
                 .thenReturn(List.of(overload, lowGrade));
         when(mapper.toResponseList(any())).thenReturn(List.of(
-                NotificationResponse.builder().id(1L).type(NotificationType.OVERLOAD_ALERT).build(),
-                NotificationResponse.builder().id(2L).type(NotificationType.LOW_PERFORMANCE_ALERT).build()));
+                NotificationResponse.builder().id(NOTIF_ID_1).type(NotificationType.OVERLOAD_ALERT).build(),
+                NotificationResponse.builder().id(NOTIF_ID_2).type(NotificationType.LOW_PERFORMANCE_ALERT).build()));
 
         List<NotificationResponse> result = useCase.getActiveAlerts(userId);
 

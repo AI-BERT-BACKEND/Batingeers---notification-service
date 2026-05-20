@@ -40,16 +40,16 @@ class MarkNotificationReadUseCaseTest {
     @InjectMocks
     private MarkNotificationReadUseCase useCase;
 
-    private static final UUID USER_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
-    private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID USER_ID_1  = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2  = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID NOTIF_ID   = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000001");
+    private static final UUID NOTIF_ID_99 = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000099");
 
     @Test
     @DisplayName("markAsRead debe marcar la notificación correctamente")
     void shouldMarkNotificationAsRead() {
-        Long notificationId = 1L;
-
         Notification notification = Notification.builder()
-                .id(notificationId)
+                .id(NOTIF_ID)
                 .userId(USER_ID_1)
                 .type(NotificationType.STUDY_SUGGESTION)
                 .title("Estudia hoy")
@@ -59,41 +59,41 @@ class MarkNotificationReadUseCaseTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        when(repository.findById(notificationId)).thenReturn(Optional.of(notification));
+        when(repository.findById(NOTIF_ID)).thenReturn(Optional.of(notification));
         when(mapper.toResponse(any())).thenReturn(NotificationResponse.builder()
-                .id(notificationId).read(true).build());
+                .id(NOTIF_ID).read(true).build());
 
-        NotificationResponse response = useCase.markAsRead(notificationId, USER_ID_1);
+        NotificationResponse response = useCase.markAsRead(NOTIF_ID, USER_ID_1);
 
         assertThat(response).isNotNull();
         assertThat(response.isRead()).isTrue();
-        verify(repository).markAsRead(eq(notificationId), any(LocalDateTime.class));
+        verify(repository).markAsRead(eq(NOTIF_ID), any(LocalDateTime.class));
     }
 
     @Test
     @DisplayName("markAsRead debe lanzar NotificationNotFoundException si no existe")
     void shouldThrowWhenNotificationNotFound() {
-        when(repository.findById(99L)).thenReturn(Optional.empty());
+        when(repository.findById(NOTIF_ID_99)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.markAsRead(99L, USER_ID_1))
+        assertThatThrownBy(() -> useCase.markAsRead(NOTIF_ID_99, USER_ID_1))
                 .isInstanceOf(NotificationNotFoundException.class)
-                .hasMessageContaining("99");
+                .hasMessageContaining(NOTIF_ID_99.toString());
     }
 
     @Test
     @DisplayName("markAsRead debe lanzar InvalidNotificationException si el userId no coincide")
     void shouldThrowWhenUserDoesNotOwnNotification() {
         Notification notification = Notification.builder()
-                .id(1L)
+                .id(NOTIF_ID)
                 .userId(USER_ID_2)
                 .type(NotificationType.OVERLOAD_ALERT)
                 .title("Alerta")
                 .severity(NotificationSeverity.HIGH)
                 .build();
 
-        when(repository.findById(1L)).thenReturn(Optional.of(notification));
+        when(repository.findById(NOTIF_ID)).thenReturn(Optional.of(notification));
 
-        assertThatThrownBy(() -> useCase.markAsRead(1L, USER_ID_1))
+        assertThatThrownBy(() -> useCase.markAsRead(NOTIF_ID, USER_ID_1))
                 .isInstanceOf(InvalidNotificationException.class);
     }
 }

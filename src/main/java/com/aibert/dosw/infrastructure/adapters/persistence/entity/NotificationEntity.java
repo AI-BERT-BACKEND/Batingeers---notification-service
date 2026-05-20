@@ -29,8 +29,9 @@ import java.util.UUID;
 public class NotificationEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
+    private UUID id;
 
     @Column(name = "user_id", nullable = false, columnDefinition = "uuid")
     private UUID userId;

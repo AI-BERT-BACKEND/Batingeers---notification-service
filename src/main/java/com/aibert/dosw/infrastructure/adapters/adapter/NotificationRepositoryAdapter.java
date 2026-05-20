@@ -28,7 +28,7 @@ public class NotificationRepositoryAdapter implements NotificationRepositoryPort
     }
 
     @Override
-    public Optional<Notification> findById(Long id) {
+    public Optional<Notification> findById(UUID id) {
         return jpaRepository.findById(id).map(mapper::toDomain);
     }
 
@@ -71,7 +71,7 @@ public class NotificationRepositoryAdapter implements NotificationRepositoryPort
     }
 
     @Override
-    public void markAsRead(Long id, LocalDateTime readAt) {
+    public void markAsRead(UUID id, LocalDateTime readAt) {
         jpaRepository.markAsRead(id, readAt);
     }
 

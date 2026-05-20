@@ -34,13 +34,15 @@ class GetStudySuggestionsUseCaseTest {
     @InjectMocks
     private GetStudySuggestionsUseCase useCase;
 
-    private final UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private final UUID userId   = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID NOTIF_ID_1 = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000001");
+    private static final UUID NOTIF_ID_2 = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000002");
 
     @Test
     @DisplayName("returns today's stored STUDY_SUGGESTION notifications")
     void returnsStoredSuggestions() {
         Notification suggestion = Notification.builder()
-                .id(1L).userId(userId)
+                .id(NOTIF_ID_1).userId(userId)
                 .type(NotificationType.STUDY_SUGGESTION)
                 .title("Algebra Workshop")
                 .message("Priority 0.83: weight=3 (×0.6) + urgency 1/0.5 days (×0.4).")
@@ -49,7 +51,7 @@ class GetStudySuggestionsUseCaseTest {
                 .build();
 
         NotificationResponse response = NotificationResponse.builder()
-                .id(1L).type(NotificationType.STUDY_SUGGESTION).build();
+                .id(NOTIF_ID_1).type(NotificationType.STUDY_SUGGESTION).build();
 
         when(repository.findByUserIdAndTypeAndCreatedAtAfter(
                 eq(userId), eq(NotificationType.STUDY_SUGGESTION), any()))
@@ -78,10 +80,10 @@ class GetStudySuggestionsUseCaseTest {
     @Test
     @DisplayName("returns multiple suggestions if planning-service sent more than one today")
     void returnsMultipleSuggestionsWhenPresent() {
-        Notification s1 = Notification.builder().id(1L).userId(userId)
+        Notification s1 = Notification.builder().id(NOTIF_ID_1).userId(userId)
                 .type(NotificationType.STUDY_SUGGESTION).severity(NotificationSeverity.INFO)
                 .createdAt(LocalDateTime.now().minusHours(5)).build();
-        Notification s2 = Notification.builder().id(2L).userId(userId)
+        Notification s2 = Notification.builder().id(NOTIF_ID_2).userId(userId)
                 .type(NotificationType.STUDY_SUGGESTION).severity(NotificationSeverity.INFO)
                 .createdAt(LocalDateTime.now().minusHours(1)).build();
 
@@ -89,8 +91,8 @@ class GetStudySuggestionsUseCaseTest {
                 eq(userId), eq(NotificationType.STUDY_SUGGESTION), any()))
                 .thenReturn(List.of(s1, s2));
         when(mapper.toResponseList(any())).thenReturn(List.of(
-                NotificationResponse.builder().id(1L).type(NotificationType.STUDY_SUGGESTION).build(),
-                NotificationResponse.builder().id(2L).type(NotificationType.STUDY_SUGGESTION).build()));
+                NotificationResponse.builder().id(NOTIF_ID_1).type(NotificationType.STUDY_SUGGESTION).build(),
+                NotificationResponse.builder().id(NOTIF_ID_2).type(NotificationType.STUDY_SUGGESTION).build()));
 
         List<NotificationResponse> result = useCase.getTodaySuggestions(userId);
 

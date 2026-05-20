@@ -18,8 +18,8 @@ import java.util.UUID;
 @Schema(description = "Full notification object returned after creation or retrieval")
 public class NotificationResponse {
 
-    @Schema(description = "Unique notification identifier", example = "1")
-    private Long id;
+    @Schema(description = "Unique notification identifier", example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+    private UUID id;
 
     @Schema(description = "ID of the recipient user", example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
     private UUID userId;

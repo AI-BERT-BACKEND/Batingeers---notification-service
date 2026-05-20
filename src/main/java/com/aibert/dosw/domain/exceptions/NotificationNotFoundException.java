@@ -1,8 +1,10 @@
 package com.aibert.dosw.domain.exceptions;
 
+import java.util.UUID;
+
 public class NotificationNotFoundException extends RuntimeException {
 
-    public NotificationNotFoundException(Long id) {
+    public NotificationNotFoundException(UUID id) {
         super("Notification not found with id: " + id);
     }
 

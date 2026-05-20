@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public interface NotificationJpaRepository extends JpaRepository<NotificationEntity, Long> {
+public interface NotificationJpaRepository extends JpaRepository<NotificationEntity, UUID> {
 
     List<NotificationEntity> findByUserIdOrderByCreatedAtDesc(UUID userId);
 
@@ -29,7 +29,7 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationEnt
 
     @Modifying
     @Query("UPDATE NotificationEntity n SET n.read = true, n.readAt = :readAt WHERE n.id = :id")
-    void markAsRead(@Param("id") Long id, @Param("readAt") LocalDateTime readAt);
+    void markAsRead(@Param("id") UUID id, @Param("readAt") LocalDateTime readAt);
 
     @Modifying
     @Query("UPDATE NotificationEntity n SET n.read = true, n.readAt = :readAt WHERE n.userId = :userId AND n.read = false")

@@ -35,18 +35,20 @@ class GetNotificationsUseCaseTest {
     @InjectMocks
     private GetNotificationsUseCase useCase;
 
-    private final UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private final UUID userId    = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID NOTIF_ID_1 = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000001");
+    private static final UUID NOTIF_ID_2 = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000002");
 
     @Test
     @DisplayName("getByUser debe retornar todas las notificaciones del usuario")
     void shouldReturnAllNotificationsForUser() {
         List<Notification> notifications = List.of(
-                buildNotification(1L, false),
-                buildNotification(2L, true)
+                buildNotification(NOTIF_ID_1, false),
+                buildNotification(NOTIF_ID_2, true)
         );
         List<NotificationResponse> responses = List.of(
-                buildResponse(1L, false),
-                buildResponse(2L, true)
+                buildResponse(NOTIF_ID_1, false),
+                buildResponse(NOTIF_ID_2, true)
         );
 
         when(repository.findByUserId(userId)).thenReturn(notifications);
@@ -60,8 +62,8 @@ class GetNotificationsUseCaseTest {
     @Test
     @DisplayName("getUnreadByUser debe retornar solo notificaciones no leídas")
     void shouldReturnOnlyUnreadNotifications() {
-        List<Notification> unread = List.of(buildNotification(1L, false));
-        List<NotificationResponse> responses = List.of(buildResponse(1L, false));
+        List<Notification> unread = List.of(buildNotification(NOTIF_ID_1, false));
+        List<NotificationResponse> responses = List.of(buildResponse(NOTIF_ID_1, false));
 
         when(repository.findUnreadByUserId(userId)).thenReturn(unread);
         when(mapper.toResponseList(unread)).thenReturn(responses);
@@ -83,7 +85,7 @@ class GetNotificationsUseCaseTest {
         assertThat(result.getUserId()).isEqualTo(userId);
     }
 
-    private Notification buildNotification(Long id, boolean read) {
+    private Notification buildNotification(UUID id, boolean read) {
         return Notification.builder()
                 .id(id)
                 .userId(userId)
@@ -96,7 +98,7 @@ class GetNotificationsUseCaseTest {
                 .build();
     }
 
-    private NotificationResponse buildResponse(Long id, boolean read) {
+    private NotificationResponse buildResponse(UUID id, boolean read) {
         return NotificationResponse.builder()
                 .id(id)
                 .userId(userId)

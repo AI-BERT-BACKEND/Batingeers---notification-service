@@ -16,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Notification {
 
-    private Long id;
+    private UUID id;
     private UUID userId;
     private NotificationType type;
     private String title;
