@@ -31,7 +31,8 @@ public class SocialEventConsumer {
         NotificationType type = parseType(event.getType(),
                 Set.of(NotificationType.STUDY_SESSION_INVITE,
                        NotificationType.CONNECTION_REQUEST_RECEIVED,
-                       NotificationType.CONNECTION_REQUEST_ACCEPTED), TOPIC);
+                       NotificationType.CONNECTION_REQUEST_ACCEPTED,
+                       NotificationType.NEW_CHAT_MESSAGE), TOPIC);
         NotificationSeverity severity = parseSeverity(event.getSeverity());
 
         if (type == null || severity == null) {
