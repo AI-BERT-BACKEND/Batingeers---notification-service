@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -22,7 +23,7 @@ public class DataInitializer implements ApplicationRunner {
 
     private final NotificationJpaRepository repository;
 
-    private static final Long SEED_USER_ID = 1L;
+    private static final UUID SEED_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Override
     public void run(ApplicationArguments args) {
