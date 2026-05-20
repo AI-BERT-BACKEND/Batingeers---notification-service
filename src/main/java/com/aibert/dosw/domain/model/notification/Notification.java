@@ -16,14 +16,14 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Notification {
 
-    private Long id;
+    private UUID id;
     private UUID userId;
     private NotificationType type;
     private String title;
     private String message;
     private boolean read;
     private NotificationSeverity severity;
-    private Long relatedEntityId;
+    private UUID relatedEntityId;
     private LocalDateTime createdAt;
     private LocalDateTime readAt;
 }

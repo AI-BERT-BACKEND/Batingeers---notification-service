@@ -18,8 +18,8 @@ import java.util.UUID;
 @Schema(description = "Full notification object returned after creation or retrieval")
 public class NotificationResponse {
 
-    @Schema(description = "Unique notification identifier", example = "1")
-    private Long id;
+    @Schema(description = "Unique notification identifier", example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+    private UUID id;
 
     @Schema(description = "ID of the recipient user", example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
     private UUID userId;
@@ -41,8 +41,9 @@ public class NotificationResponse {
     @Schema(description = "Severity level that controls visual styling", example = "HIGH")
     private NotificationSeverity severity;
 
-    @Schema(description = "ID of the related entity for deep-linking (task, subject, etc.)", example = "42")
-    private Long relatedEntityId;
+    @Schema(description = "UUID of the related entity for deep-linking (task, subject, connection request, etc.)",
+            example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+    private UUID relatedEntityId;
 
     @Schema(description = "UTC timestamp when the notification was created")
     private LocalDateTime createdAt;

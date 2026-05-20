@@ -29,8 +29,9 @@ import java.util.UUID;
 public class NotificationEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
+    private UUID id;
 
     @Column(name = "user_id", nullable = false, columnDefinition = "uuid")
     private UUID userId;
@@ -52,8 +53,8 @@ public class NotificationEntity {
     @Column(name = "severity", nullable = false, length = 20)
     private NotificationSeverity severity;
 
-    @Column(name = "related_entity_id")
-    private Long relatedEntityId;
+    @Column(name = "related_entity_id", columnDefinition = "uuid")
+    private UUID relatedEntityId;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -73,10 +72,15 @@ class NotificationControllerTest {
     @MockBean
     private GetAlertsPort getAlertsPort;
 
-    private final UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID     = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID NOTIF_ID_1  = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000001");
+    private static final UUID NOTIF_ID_2  = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000002");
+    private static final UUID NOTIF_ID_3  = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000003");
+    private static final UUID NOTIF_ID_4  = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000004");
+    private static final UUID NOTIF_ID_99 = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000099");
 
     private UsernamePasswordAuthenticationToken auth() {
-        UserPrincipal principal = new UserPrincipal(userId, "testuser");
+        UserPrincipal principal = new UserPrincipal(USER_ID, "testuser");
         return new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList());
     }
 
@@ -84,7 +88,7 @@ class NotificationControllerTest {
     @DisplayName("POST /api/v1/notifications debe crear notificación y retornar 201")
     void shouldCreateNotificationAndReturn201() throws Exception {
         CreateNotificationRequest request = CreateNotificationRequest.builder()
-                .userId(userId)
+                .userId(USER_ID)
                 .type(NotificationType.OVERLOAD_ALERT)
                 .title("Sobrecarga")
                 .message("Tienes demasiadas tareas asignadas")
@@ -92,8 +96,8 @@ class NotificationControllerTest {
                 .build();
 
         NotificationResponse response = NotificationResponse.builder()
-                .id(1L)
-                .userId(userId)
+                .id(NOTIF_ID_1)
+                .userId(USER_ID)
                 .type(NotificationType.OVERLOAD_ALERT)
                 .title("Sobrecarga")
                 .severity(NotificationSeverity.HIGH)
@@ -109,7 +113,7 @@ class NotificationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.id").value(NOTIF_ID_1.toString()))
                 .andExpect(jsonPath("$.type").value("OVERLOAD_ALERT"))
                 .andExpect(jsonPath("$.read").value(false));
     }
@@ -118,7 +122,7 @@ class NotificationControllerTest {
     @DisplayName("POST /api/v1/notifications debe retornar 400 si faltan campos obligatorios")
     void shouldReturn400WhenRequiredFieldsMissing() throws Exception {
         CreateNotificationRequest invalid = CreateNotificationRequest.builder()
-                .userId(userId)
+                .userId(USER_ID)
                 .build();
 
         mockMvc.perform(post("/api/v1/notifications")
@@ -133,11 +137,11 @@ class NotificationControllerTest {
     @DisplayName("GET /api/v1/notifications/me debe retornar lista de notificaciones")
     void shouldReturnUserNotifications() throws Exception {
         List<NotificationResponse> notifications = List.of(
-                NotificationResponse.builder().id(1L).userId(userId)
+                NotificationResponse.builder().id(NOTIF_ID_1).userId(USER_ID)
                         .type(NotificationType.STUDY_SUGGESTION).read(false).build()
         );
 
-        when(getNotificationsPort.getByUser(userId)).thenReturn(notifications);
+        when(getNotificationsPort.getByUser(USER_ID)).thenReturn(notifications);
 
         mockMvc.perform(get("/api/v1/notifications/me")
                         .with(authentication(auth())))
@@ -150,11 +154,11 @@ class NotificationControllerTest {
     @DisplayName("GET /api/v1/notifications/me/unread debe retornar solo no leídas")
     void shouldReturnOnlyUnreadNotifications() throws Exception {
         List<NotificationResponse> unread = List.of(
-                NotificationResponse.builder().id(2L).userId(userId)
+                NotificationResponse.builder().id(NOTIF_ID_2).userId(USER_ID)
                         .type(NotificationType.LOW_PERFORMANCE_ALERT).read(false).build()
         );
 
-        when(getNotificationsPort.getUnreadByUser(userId)).thenReturn(unread);
+        when(getNotificationsPort.getUnreadByUser(USER_ID)).thenReturn(unread);
 
         mockMvc.perform(get("/api/v1/notifications/me/unread")
                         .with(authentication(auth())))
@@ -166,8 +170,8 @@ class NotificationControllerTest {
     @Test
     @DisplayName("GET /api/v1/notifications/me/count debe retornar el conteo")
     void shouldReturnUnreadCount() throws Exception {
-        when(getNotificationsPort.countUnread(userId))
-                .thenReturn(new UnreadCountResponse(userId, 5L));
+        when(getNotificationsPort.countUnread(USER_ID))
+                .thenReturn(new UnreadCountResponse(USER_ID, 5L));
 
         mockMvc.perform(get("/api/v1/notifications/me/count")
                         .with(authentication(auth())))
@@ -179,12 +183,12 @@ class NotificationControllerTest {
     @DisplayName("GET /api/v1/notifications/me/suggestions debe retornar sugerencias R23")
     void shouldReturnStudySuggestions() throws Exception {
         List<NotificationResponse> suggestions = List.of(
-                NotificationResponse.builder().id(3L).userId(userId)
+                NotificationResponse.builder().id(NOTIF_ID_3).userId(USER_ID)
                         .type(NotificationType.STUDY_SUGGESTION)
                         .title("¿Qué estudiar hoy?").read(false).build()
         );
 
-        when(getStudySuggestionsPort.getTodaySuggestions(userId)).thenReturn(suggestions);
+        when(getStudySuggestionsPort.getTodaySuggestions(USER_ID)).thenReturn(suggestions);
 
         mockMvc.perform(get("/api/v1/notifications/me/suggestions")
                         .with(authentication(auth())))
@@ -197,12 +201,12 @@ class NotificationControllerTest {
     @DisplayName("GET /api/v1/notifications/me/alerts debe retornar alertas R22")
     void shouldReturnAlerts() throws Exception {
         List<NotificationResponse> alerts = List.of(
-                NotificationResponse.builder().id(4L).userId(userId)
+                NotificationResponse.builder().id(NOTIF_ID_4).userId(USER_ID)
                         .type(NotificationType.OVERLOAD_ALERT)
                         .severity(NotificationSeverity.HIGH).read(false).build()
         );
 
-        when(getAlertsPort.getActiveAlerts(userId)).thenReturn(alerts);
+        when(getAlertsPort.getActiveAlerts(USER_ID)).thenReturn(alerts);
 
         mockMvc.perform(get("/api/v1/notifications/me/alerts")
                         .with(authentication(auth())))
@@ -215,11 +219,11 @@ class NotificationControllerTest {
     @DisplayName("PUT /api/v1/notifications/{id}/read debe marcar como leída y retornar 200")
     void shouldMarkNotificationAsRead() throws Exception {
         NotificationResponse marked = NotificationResponse.builder()
-                .id(1L).userId(userId).read(true).build();
+                .id(NOTIF_ID_1).userId(USER_ID).read(true).build();
 
-        when(markNotificationReadPort.markAsRead(eq(1L), eq(userId))).thenReturn(marked);
+        when(markNotificationReadPort.markAsRead(NOTIF_ID_1, USER_ID)).thenReturn(marked);
 
-        mockMvc.perform(put("/api/v1/notifications/1/read")
+        mockMvc.perform(put("/api/v1/notifications/" + NOTIF_ID_1 + "/read")
                         .with(csrf())
                         .with(authentication(auth())))
                 .andExpect(status().isOk())
@@ -229,10 +233,10 @@ class NotificationControllerTest {
     @Test
     @DisplayName("PUT /api/v1/notifications/{id}/read debe retornar 404 si no existe")
     void shouldReturn404WhenNotificationNotFound() throws Exception {
-        when(markNotificationReadPort.markAsRead(eq(99L), eq(userId)))
-                .thenThrow(new NotificationNotFoundException(99L));
+        when(markNotificationReadPort.markAsRead(NOTIF_ID_99, USER_ID))
+                .thenThrow(new NotificationNotFoundException(NOTIF_ID_99));
 
-        mockMvc.perform(put("/api/v1/notifications/99/read")
+        mockMvc.perform(put("/api/v1/notifications/" + NOTIF_ID_99 + "/read")
                         .with(csrf())
                         .with(authentication(auth())))
                 .andExpect(status().isNotFound());
@@ -241,7 +245,7 @@ class NotificationControllerTest {
     @Test
     @DisplayName("PUT /api/v1/notifications/me/read-all debe retornar 204")
     void shouldMarkAllAsReadAndReturn204() throws Exception {
-        doNothing().when(markNotificationReadPort).markAllAsRead(userId);
+        doNothing().when(markNotificationReadPort).markAllAsRead(USER_ID);
 
         mockMvc.perform(put("/api/v1/notifications/me/read-all")
                         .with(csrf())

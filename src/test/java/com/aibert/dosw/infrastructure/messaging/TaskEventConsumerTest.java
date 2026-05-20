@@ -31,13 +31,14 @@ class TaskEventConsumerTest {
 
     private static final UUID USER_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID RELATED_ID = UUID.fromString("00000000-0000-0000-0000-000000000010");
 
     @Test
     @DisplayName("TASK_REMINDER event → creates notification with correct type and severity")
     void taskReminderEvent_createsNotification() {
         TaskEvent event = TaskEvent.builder()
                 .userId(USER_ID_1).type("TASK_REMINDER").title("Complete Assignment")
-                .message("Due tomorrow").severity("MEDIUM").relatedEntityId(10L)
+                .message("Due tomorrow").severity("MEDIUM").relatedEntityId(RELATED_ID)
                 .build();
 
         consumer.consume(event);
@@ -51,7 +52,7 @@ class TaskEventConsumerTest {
         assertThat(req.getType()).isEqualTo(NotificationType.TASK_REMINDER);
         assertThat(req.getSeverity()).isEqualTo(NotificationSeverity.MEDIUM);
         assertThat(req.getTitle()).isEqualTo("Complete Assignment");
-        assertThat(req.getRelatedEntityId()).isEqualTo(10L);
+        assertThat(req.getRelatedEntityId()).isEqualTo(RELATED_ID);
     }
 
     @Test

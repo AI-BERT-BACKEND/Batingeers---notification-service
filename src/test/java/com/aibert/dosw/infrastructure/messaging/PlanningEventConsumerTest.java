@@ -35,13 +35,14 @@ class PlanningEventConsumerTest {
 
     private static final UUID USER_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID RELATED_ID = UUID.fromString("00000000-0000-0000-0000-000000000005");
 
     @Test
     @DisplayName("STUDY_SUGGESTION event → creates notification with INFO severity")
     void studySuggestionEvent_createsNotification() {
         PlanningEvent event = PlanningEvent.builder()
                 .userId(USER_ID_1).type("STUDY_SUGGESTION").title("Study Algebra")
-                .message("Priority 0.83").severity("INFO").relatedEntityId(5L)
+                .message("Priority 0.83").severity("INFO").relatedEntityId(RELATED_ID)
                 .build();
 
         consumer.consume(event);
@@ -54,7 +55,7 @@ class PlanningEventConsumerTest {
         assertThat(req.getUserId()).isEqualTo(USER_ID_1);
         assertThat(req.getType()).isEqualTo(NotificationType.STUDY_SUGGESTION);
         assertThat(req.getSeverity()).isEqualTo(NotificationSeverity.INFO);
-        assertThat(req.getRelatedEntityId()).isEqualTo(5L);
+        assertThat(req.getRelatedEntityId()).isEqualTo(RELATED_ID);
     }
 
     @Test

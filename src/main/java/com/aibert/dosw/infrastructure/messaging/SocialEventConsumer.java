@@ -10,7 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 import static com.aibert.dosw.infrastructure.messaging.EventConsumerUtils.parseSeverity;
+import static com.aibert.dosw.infrastructure.messaging.EventConsumerUtils.parseType;
 
 @Slf4j
 @Component
@@ -25,23 +28,27 @@ public class SocialEventConsumer {
     public void consume(SocialEvent event) {
         log.info("Kafka social event received: type={} userId={}", event.getType(), event.getUserId());
 
+        NotificationType type = parseType(event.getType(),
+                Set.of(NotificationType.STUDY_SESSION_INVITE,
+                       NotificationType.CONNECTION_REQUEST_RECEIVED,
+                       NotificationType.CONNECTION_REQUEST_ACCEPTED), TOPIC);
         NotificationSeverity severity = parseSeverity(event.getSeverity());
 
-        if (severity == null) {
-            log.warn("Discarding social event with unknown severity={}", event.getSeverity());
+        if (type == null || severity == null) {
+            log.warn("Discarding social event with unknown type={} or severity={}", event.getType(), event.getSeverity());
             return;
         }
 
         createNotificationPort.create(CreateNotificationRequest.builder()
                 .userId(event.getUserId())
-                .type(NotificationType.STUDY_SESSION_INVITE)
+                .type(type)
                 .title(event.getTitle())
                 .message(event.getMessage())
                 .severity(severity)
                 .relatedEntityId(event.getRelatedEntityId())
                 .build());
 
-        log.info("STUDY_SESSION_INVITE persisted from social.events: userId={}", event.getUserId());
+        log.info("Notification persisted from social.events: type={} userId={}", type, event.getUserId());
     }
 
 }

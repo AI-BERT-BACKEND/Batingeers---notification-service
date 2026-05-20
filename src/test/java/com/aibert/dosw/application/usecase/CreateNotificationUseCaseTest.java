@@ -35,7 +35,8 @@ class CreateNotificationUseCaseTest {
     @InjectMocks
     private CreateNotificationUseCase useCase;
 
-    private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID   = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID NOTIF_ID  = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000001");
 
     @Test
     @DisplayName("debe crear y retornar la notificación correctamente")
@@ -57,7 +58,7 @@ class CreateNotificationUseCaseTest {
                 .build();
 
         Notification saved = Notification.builder()
-                .id(1L)
+                .id(NOTIF_ID)
                 .userId(USER_ID)
                 .type(NotificationType.OVERLOAD_ALERT)
                 .title("Sobrecarga")
@@ -66,7 +67,7 @@ class CreateNotificationUseCaseTest {
                 .build();
 
         NotificationResponse expected = NotificationResponse.builder()
-                .id(1L)
+                .id(NOTIF_ID)
                 .userId(USER_ID)
                 .type(NotificationType.OVERLOAD_ALERT)
                 .title("Sobrecarga")
@@ -79,7 +80,7 @@ class CreateNotificationUseCaseTest {
         NotificationResponse result = useCase.create(request);
 
         assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getId()).isEqualTo(NOTIF_ID);
         assertThat(result.getType()).isEqualTo(NotificationType.OVERLOAD_ALERT);
         verify(repository).save(any());
     }

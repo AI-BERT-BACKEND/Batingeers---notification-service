@@ -19,5 +19,5 @@ public class NotificationEvent {
     private String title;
     private String message;
     private String severity;
-    private Long relatedEntityId;
+    private UUID relatedEntityId;
 }

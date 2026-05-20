@@ -23,7 +23,7 @@ public class MarkNotificationReadUseCase implements MarkNotificationReadPort {
 
     @Override
     @Transactional
-    public NotificationResponse markAsRead(Long notificationId, UUID userId) {
+    public NotificationResponse markAsRead(UUID notificationId, UUID userId) {
         Notification notification = repository.findById(notificationId)
                 .orElseThrow(() -> new NotificationNotFoundException(notificationId));
 

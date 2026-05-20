@@ -27,7 +27,8 @@ public class CreateNotificationRequest {
     @Schema(description = "Type of notification — controls how it is displayed in the mobile app",
             example = "OVERLOAD_ALERT",
             allowableValues = {"OVERLOAD_ALERT", "LOW_PERFORMANCE_ALERT", "STUDY_SUGGESTION",
-                               "TASK_REMINDER", "STUDY_SESSION_INVITE"})
+                               "TASK_REMINDER", "STUDY_SESSION_INVITE",
+                               "CONNECTION_REQUEST_RECEIVED", "CONNECTION_REQUEST_ACCEPTED", "LEVEL_UP"})
     private NotificationType type;
 
     @NotBlank(message = "Title is required")
@@ -45,7 +46,7 @@ public class CreateNotificationRequest {
             allowableValues = {"HIGH", "MEDIUM", "LOW", "INFO"})
     private NotificationSeverity severity;
 
-    @Schema(description = "Optional ID of the related entity (task, subject, etc.) for deep-linking",
-            example = "42")
-    private Long relatedEntityId;
+    @Schema(description = "Optional UUID of the related entity (task, subject, connection request, etc.) for deep-linking",
+            example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+    private UUID relatedEntityId;
 }

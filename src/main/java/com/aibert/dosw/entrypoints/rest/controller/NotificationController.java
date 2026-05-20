@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
@@ -163,7 +164,7 @@ public class NotificationController {
     @ApiResponse(responseCode = "404", description = "Notification not found",
                  content = @Content(schema = @Schema(hidden = true)))
     public ResponseEntity<NotificationResponse> markAsRead(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.ok(markNotificationReadPort.markAsRead(id, principal.getUserId()));
     }
