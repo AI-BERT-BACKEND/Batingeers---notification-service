@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -32,25 +33,25 @@ public class NotificationRepositoryAdapter implements NotificationRepositoryPort
     }
 
     @Override
-    public List<Notification> findByUserId(Long userId) {
+    public List<Notification> findByUserId(UUID userId) {
         return mapper.toDomainList(jpaRepository.findByUserIdOrderByCreatedAtDesc(userId));
     }
 
     @Override
-    public List<Notification> findByUserIdAndType(Long userId, NotificationType type) {
+    public List<Notification> findByUserIdAndType(UUID userId, NotificationType type) {
         return mapper.toDomainList(
                 jpaRepository.findByUserIdAndTypeOrderByCreatedAtDesc(userId, type));
     }
 
     @Override
-    public List<Notification> findUnreadByUserId(Long userId) {
+    public List<Notification> findUnreadByUserId(UUID userId) {
         return mapper.toDomainList(
                 jpaRepository.findByUserIdAndReadFalseOrderByCreatedAtDesc(userId));
     }
 
     @Override
     public List<Notification> findByUserIdAndTypeInAndCreatedAtAfter(
-            Long userId, List<NotificationType> types, LocalDateTime after) {
+            UUID userId, List<NotificationType> types, LocalDateTime after) {
         return mapper.toDomainList(
                 jpaRepository.findByUserIdAndTypeInAndCreatedAtAfterOrderByCreatedAtDesc(
                         userId, types, after));
@@ -58,14 +59,14 @@ public class NotificationRepositoryAdapter implements NotificationRepositoryPort
 
     @Override
     public List<Notification> findByUserIdAndTypeAndCreatedAtAfter(
-            Long userId, NotificationType type, LocalDateTime after) {
+            UUID userId, NotificationType type, LocalDateTime after) {
         return mapper.toDomainList(
                 jpaRepository.findByUserIdAndTypeAndCreatedAtAfterOrderByCreatedAtDesc(
                         userId, type, after));
     }
 
     @Override
-    public long countUnreadByUserId(Long userId) {
+    public long countUnreadByUserId(UUID userId) {
         return jpaRepository.countByUserIdAndReadFalse(userId);
     }
 
@@ -75,7 +76,7 @@ public class NotificationRepositoryAdapter implements NotificationRepositoryPort
     }
 
     @Override
-    public void markAllAsRead(Long userId, LocalDateTime readAt) {
+    public void markAllAsRead(UUID userId, LocalDateTime readAt) {
         jpaRepository.markAllAsRead(userId, readAt);
     }
 }

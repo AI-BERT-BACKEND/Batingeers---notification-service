@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,7 +33,7 @@ class DailyStudyServiceTest {
     @InjectMocks
     private DailyStudyService dailyStudyService;
 
-    private final Long userId = 1L;
+    private final UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Test
     @DisplayName("no STUDY_SUGGESTION today → returns empty Optional")

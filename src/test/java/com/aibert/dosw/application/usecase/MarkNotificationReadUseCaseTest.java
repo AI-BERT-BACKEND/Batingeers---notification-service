@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,15 +40,17 @@ class MarkNotificationReadUseCaseTest {
     @InjectMocks
     private MarkNotificationReadUseCase useCase;
 
+    private static final UUID USER_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
     @Test
     @DisplayName("markAsRead debe marcar la notificación correctamente")
     void shouldMarkNotificationAsRead() {
         Long notificationId = 1L;
-        Long userId = 1L;
 
         Notification notification = Notification.builder()
                 .id(notificationId)
-                .userId(userId)
+                .userId(USER_ID_1)
                 .type(NotificationType.STUDY_SUGGESTION)
                 .title("Estudia hoy")
                 .message("Tienes pendiente Cálculo")
@@ -60,7 +63,7 @@ class MarkNotificationReadUseCaseTest {
         when(mapper.toResponse(any())).thenReturn(NotificationResponse.builder()
                 .id(notificationId).read(true).build());
 
-        NotificationResponse response = useCase.markAsRead(notificationId, userId);
+        NotificationResponse response = useCase.markAsRead(notificationId, USER_ID_1);
 
         assertThat(response).isNotNull();
         assertThat(response.isRead()).isTrue();
@@ -72,7 +75,7 @@ class MarkNotificationReadUseCaseTest {
     void shouldThrowWhenNotificationNotFound() {
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.markAsRead(99L, 1L))
+        assertThatThrownBy(() -> useCase.markAsRead(99L, USER_ID_1))
                 .isInstanceOf(NotificationNotFoundException.class)
                 .hasMessageContaining("99");
     }
@@ -82,7 +85,7 @@ class MarkNotificationReadUseCaseTest {
     void shouldThrowWhenUserDoesNotOwnNotification() {
         Notification notification = Notification.builder()
                 .id(1L)
-                .userId(2L)
+                .userId(USER_ID_2)
                 .type(NotificationType.OVERLOAD_ALERT)
                 .title("Alerta")
                 .severity(NotificationSeverity.HIGH)
@@ -90,7 +93,7 @@ class MarkNotificationReadUseCaseTest {
 
         when(repository.findById(1L)).thenReturn(Optional.of(notification));
 
-        assertThatThrownBy(() -> useCase.markAsRead(1L, 1L))
+        assertThatThrownBy(() -> useCase.markAsRead(1L, USER_ID_1))
                 .isInstanceOf(InvalidNotificationException.class);
     }
 }

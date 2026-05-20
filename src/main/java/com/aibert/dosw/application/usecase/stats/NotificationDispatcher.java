@@ -5,6 +5,8 @@ import com.aibert.dosw.domain.ports.in.GetStatsAlertsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class NotificationDispatcher implements GetStatsAlertsPort {
@@ -12,7 +14,7 @@ public class NotificationDispatcher implements GetStatsAlertsPort {
     private final AlertService alertService;
 
     @Override
-    public AlertsResponseDTO getAlerts(Long userId) {
+    public AlertsResponseDTO getAlerts(UUID userId) {
         return AlertsResponseDTO.builder()
                 .overloadAlert(alertService.evaluateOverloadAlert(userId))
                 .lowGradeAlert(alertService.evaluateLowGradeAlert(userId))

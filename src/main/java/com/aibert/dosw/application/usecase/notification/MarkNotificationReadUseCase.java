@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +23,7 @@ public class MarkNotificationReadUseCase implements MarkNotificationReadPort {
 
     @Override
     @Transactional
-    public NotificationResponse markAsRead(Long notificationId, Long userId) {
+    public NotificationResponse markAsRead(Long notificationId, UUID userId) {
         Notification notification = repository.findById(notificationId)
                 .orElseThrow(() -> new NotificationNotFoundException(notificationId));
 
@@ -41,7 +42,7 @@ public class MarkNotificationReadUseCase implements MarkNotificationReadPort {
 
     @Override
     @Transactional
-    public void markAllAsRead(Long userId) {
+    public void markAllAsRead(UUID userId) {
         repository.markAllAsRead(userId, LocalDateTime.now());
     }
 }

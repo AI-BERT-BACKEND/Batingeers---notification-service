@@ -6,14 +6,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GamificationEvent {
-    private Long userId;
+    private UUID userId;
     private int newLevelNumber;
     private int previousLevelNumber;
-    private String levelName;
+    private LevelName levelName;
 }

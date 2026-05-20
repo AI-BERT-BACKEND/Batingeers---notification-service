@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -46,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Claims claims = extractClaims(token);
             if (claims != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 String username = claims.getSubject();
-                Long userId = claims.get("userId", Long.class);
+                UUID userId = UUID.fromString(claims.get("userId", String.class));
                 List<String> roles = claims.get("roles", List.class);
 
                 List<SimpleGrantedAuthority> authorities = roles == null

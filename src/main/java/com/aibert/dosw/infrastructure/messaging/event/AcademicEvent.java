@@ -6,13 +6,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AcademicEvent {
-    private Long userId;
+    private UUID userId;
     /** Always LOW_PERFORMANCE_ALERT */
     private String type;
     private String title;

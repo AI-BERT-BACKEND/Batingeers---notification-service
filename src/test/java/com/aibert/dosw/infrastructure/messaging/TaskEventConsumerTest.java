@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -27,11 +29,14 @@ class TaskEventConsumerTest {
     @InjectMocks
     private TaskEventConsumer consumer;
 
+    private static final UUID USER_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
     @Test
     @DisplayName("TASK_REMINDER event → creates notification with correct type and severity")
     void taskReminderEvent_createsNotification() {
         TaskEvent event = TaskEvent.builder()
-                .userId(1L).type("TASK_REMINDER").title("Complete Assignment")
+                .userId(USER_ID_1).type("TASK_REMINDER").title("Complete Assignment")
                 .message("Due tomorrow").severity("MEDIUM").relatedEntityId(10L)
                 .build();
 
@@ -42,7 +47,7 @@ class TaskEventConsumerTest {
         verify(createNotificationPort).create(captor.capture());
 
         CreateNotificationRequest req = captor.getValue();
-        assertThat(req.getUserId()).isEqualTo(1L);
+        assertThat(req.getUserId()).isEqualTo(USER_ID_1);
         assertThat(req.getType()).isEqualTo(NotificationType.TASK_REMINDER);
         assertThat(req.getSeverity()).isEqualTo(NotificationSeverity.MEDIUM);
         assertThat(req.getTitle()).isEqualTo("Complete Assignment");
@@ -53,7 +58,7 @@ class TaskEventConsumerTest {
     @DisplayName("OVERLOAD_ALERT event → creates notification with HIGH severity")
     void overloadAlertEvent_createsNotification() {
         TaskEvent event = TaskEvent.builder()
-                .userId(2L).type("OVERLOAD_ALERT").title("Too many tasks")
+                .userId(USER_ID_2).type("OVERLOAD_ALERT").title("Too many tasks")
                 .message("Reduce workload").severity("HIGH").relatedEntityId(null)
                 .build();
 
@@ -71,7 +76,7 @@ class TaskEventConsumerTest {
     @DisplayName("type=STUDY_SUGGESTION (not allowed for task.events) → event discarded")
     void unallowedType_eventDiscarded() {
         TaskEvent event = TaskEvent.builder()
-                .userId(1L).type("STUDY_SUGGESTION").title("Study Math")
+                .userId(USER_ID_1).type("STUDY_SUGGESTION").title("Study Math")
                 .message("msg").severity("INFO")
                 .build();
 
@@ -84,7 +89,7 @@ class TaskEventConsumerTest {
     @DisplayName("null type → event discarded")
     void nullType_eventDiscarded() {
         TaskEvent event = TaskEvent.builder()
-                .userId(1L).type(null).title("title").message("msg").severity("HIGH")
+                .userId(USER_ID_1).type(null).title("title").message("msg").severity("HIGH")
                 .build();
 
         consumer.consume(event);
@@ -96,7 +101,7 @@ class TaskEventConsumerTest {
     @DisplayName("unknown severity → event discarded")
     void unknownSeverity_eventDiscarded() {
         TaskEvent event = TaskEvent.builder()
-                .userId(1L).type("TASK_REMINDER").title("title").message("msg").severity("UNKNOWN")
+                .userId(USER_ID_1).type("TASK_REMINDER").title("title").message("msg").severity("UNKNOWN")
                 .build();
 
         consumer.consume(event);
@@ -108,7 +113,7 @@ class TaskEventConsumerTest {
     @DisplayName("null severity → event discarded")
     void nullSeverity_eventDiscarded() {
         TaskEvent event = TaskEvent.builder()
-                .userId(1L).type("TASK_REMINDER").title("title").message("msg").severity(null)
+                .userId(USER_ID_1).type("TASK_REMINDER").title("title").message("msg").severity(null)
                 .build();
 
         consumer.consume(event);

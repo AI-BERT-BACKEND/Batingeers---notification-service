@@ -9,22 +9,23 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public interface NotificationJpaRepository extends JpaRepository<NotificationEntity, Long> {
 
-    List<NotificationEntity> findByUserIdOrderByCreatedAtDesc(Long userId);
+    List<NotificationEntity> findByUserIdOrderByCreatedAtDesc(UUID userId);
 
-    List<NotificationEntity> findByUserIdAndTypeOrderByCreatedAtDesc(Long userId, NotificationType type);
+    List<NotificationEntity> findByUserIdAndTypeOrderByCreatedAtDesc(UUID userId, NotificationType type);
 
-    List<NotificationEntity> findByUserIdAndReadFalseOrderByCreatedAtDesc(Long userId);
+    List<NotificationEntity> findByUserIdAndReadFalseOrderByCreatedAtDesc(UUID userId);
 
-    long countByUserIdAndReadFalse(Long userId);
+    long countByUserIdAndReadFalse(UUID userId);
 
     List<NotificationEntity> findByUserIdAndTypeInAndCreatedAtAfterOrderByCreatedAtDesc(
-            Long userId, List<NotificationType> types, LocalDateTime after);
+            UUID userId, List<NotificationType> types, LocalDateTime after);
 
     List<NotificationEntity> findByUserIdAndTypeAndCreatedAtAfterOrderByCreatedAtDesc(
-            Long userId, NotificationType type, LocalDateTime after);
+            UUID userId, NotificationType type, LocalDateTime after);
 
     @Modifying
     @Query("UPDATE NotificationEntity n SET n.read = true, n.readAt = :readAt WHERE n.id = :id")
@@ -32,5 +33,5 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationEnt
 
     @Modifying
     @Query("UPDATE NotificationEntity n SET n.read = true, n.readAt = :readAt WHERE n.userId = :userId AND n.read = false")
-    void markAllAsRead(@Param("userId") Long userId, @Param("readAt") LocalDateTime readAt);
+    void markAllAsRead(@Param("userId") UUID userId, @Param("readAt") LocalDateTime readAt);
 }

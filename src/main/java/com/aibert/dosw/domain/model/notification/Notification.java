@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 public class Notification {
 
     private Long id;
-    private Long userId;
+    private UUID userId;
     private NotificationType type;
     private String title;
     private String message;

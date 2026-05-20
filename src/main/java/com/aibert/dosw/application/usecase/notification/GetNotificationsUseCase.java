@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,25 +22,25 @@ public class GetNotificationsUseCase implements GetNotificationsPort {
 
     @Override
     @Transactional(readOnly = true)
-    public List<NotificationResponse> getByUser(Long userId) {
+    public List<NotificationResponse> getByUser(UUID userId) {
         return mapper.toResponseList(repository.findByUserId(userId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<NotificationResponse> getUnreadByUser(Long userId) {
+    public List<NotificationResponse> getUnreadByUser(UUID userId) {
         return mapper.toResponseList(repository.findUnreadByUserId(userId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<NotificationResponse> getByUserAndType(Long userId, NotificationType type) {
+    public List<NotificationResponse> getByUserAndType(UUID userId, NotificationType type) {
         return mapper.toResponseList(repository.findByUserIdAndType(userId, type));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public UnreadCountResponse countUnread(Long userId) {
+    public UnreadCountResponse countUnread(UUID userId) {
         long count = repository.countUnreadByUserId(userId);
         return new UnreadCountResponse(userId, count);
     }

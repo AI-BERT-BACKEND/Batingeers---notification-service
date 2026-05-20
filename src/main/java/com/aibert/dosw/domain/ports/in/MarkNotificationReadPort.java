@@ -1,8 +1,9 @@
 package com.aibert.dosw.domain.ports.in;
 
 import com.aibert.dosw.application.dto.response.NotificationResponse;
+import java.util.UUID;
 
 public interface MarkNotificationReadPort {
-    NotificationResponse markAsRead(Long notificationId, Long userId);
-    void markAllAsRead(Long userId);
+    NotificationResponse markAsRead(Long notificationId, UUID userId);
+    void markAllAsRead(UUID userId);
 }

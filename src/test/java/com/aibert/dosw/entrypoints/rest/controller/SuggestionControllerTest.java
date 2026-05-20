@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -42,8 +43,10 @@ class SuggestionControllerTest {
     @MockBean
     private GetDailySuggestionPort getDailySuggestionPort;
 
+    private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
     private UsernamePasswordAuthenticationToken auth() {
-        UserPrincipal principal = new UserPrincipal(1L, "testuser");
+        UserPrincipal principal = new UserPrincipal(USER_ID, "testuser");
         return new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList());
     }
 

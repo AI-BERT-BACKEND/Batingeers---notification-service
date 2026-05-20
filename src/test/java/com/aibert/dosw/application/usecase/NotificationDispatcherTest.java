@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -28,7 +29,7 @@ class NotificationDispatcherTest {
     @InjectMocks
     private NotificationDispatcher dispatcher;
 
-    private final Long userId = 1L;
+    private final UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Test
     @DisplayName("getAlerts consolida overloadAlert y lowGradeAlert en AlertsResponseDTO")
