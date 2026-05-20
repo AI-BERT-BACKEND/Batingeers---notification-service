@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -222,7 +221,7 @@ class NotificationControllerTest {
         NotificationResponse marked = NotificationResponse.builder()
                 .id(NOTIF_ID_1).userId(USER_ID).read(true).build();
 
-        when(markNotificationReadPort.markAsRead(eq(NOTIF_ID_1), eq(USER_ID))).thenReturn(marked);
+        when(markNotificationReadPort.markAsRead(NOTIF_ID_1, USER_ID)).thenReturn(marked);
 
         mockMvc.perform(put("/api/v1/notifications/" + NOTIF_ID_1 + "/read")
                         .with(csrf())
@@ -234,7 +233,7 @@ class NotificationControllerTest {
     @Test
     @DisplayName("PUT /api/v1/notifications/{id}/read debe retornar 404 si no existe")
     void shouldReturn404WhenNotificationNotFound() throws Exception {
-        when(markNotificationReadPort.markAsRead(eq(NOTIF_ID_99), eq(USER_ID)))
+        when(markNotificationReadPort.markAsRead(NOTIF_ID_99, USER_ID))
                 .thenThrow(new NotificationNotFoundException(NOTIF_ID_99));
 
         mockMvc.perform(put("/api/v1/notifications/" + NOTIF_ID_99 + "/read")

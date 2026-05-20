@@ -8,6 +8,11 @@ import com.aibert.dosw.infrastructure.messaging.event.SocialEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -106,35 +111,20 @@ class SocialEventConsumerTest {
         assertThat(captor.getValue().getSeverity()).isEqualTo(NotificationSeverity.INFO);
     }
 
-    @Test
-    @DisplayName("null severity → event discarded")
-    void nullSeverity_eventDiscarded() {
-        SocialEvent event = SocialEvent.builder()
-                .userId(USER_ID_1).type("STUDY_SESSION_INVITE").title("title").message("msg").severity(null)
-                .build();
-
-        consumer.consume(event);
-
-        verify(createNotificationPort, never()).create(any());
+    static Stream<Arguments> invalidEvents() {
+        return Stream.of(
+                Arguments.of("STUDY_SESSION_INVITE", null,      "null severity"),
+                Arguments.of("STUDY_SESSION_INVITE", "EXTREME", "unknown severity"),
+                Arguments.of("OVERLOAD_ALERT",       "INFO",    "unknown type for social.events")
+        );
     }
 
-    @Test
-    @DisplayName("unknown severity → event discarded")
-    void unknownSeverity_eventDiscarded() {
+    @ParameterizedTest(name = "{2} → event discarded")
+    @MethodSource("invalidEvents")
+    @DisplayName("invalid events → no notification created")
+    void invalidEvent_eventDiscarded(String type, String severity, String scenario) {
         SocialEvent event = SocialEvent.builder()
-                .userId(USER_ID_1).type("STUDY_SESSION_INVITE").title("title").message("msg").severity("EXTREME")
-                .build();
-
-        consumer.consume(event);
-
-        verify(createNotificationPort, never()).create(any());
-    }
-
-    @Test
-    @DisplayName("unknown type → event discarded")
-    void unknownType_eventDiscarded() {
-        SocialEvent event = SocialEvent.builder()
-                .userId(USER_ID_1).type("OVERLOAD_ALERT").title("title").message("msg").severity("INFO")
+                .userId(USER_ID_1).type(type).title("title").message("msg").severity(severity)
                 .build();
 
         consumer.consume(event);
