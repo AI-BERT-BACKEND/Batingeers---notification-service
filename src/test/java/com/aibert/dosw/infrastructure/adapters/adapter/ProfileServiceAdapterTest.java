@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -25,25 +26,29 @@ class ProfileServiceAdapterTest {
     @InjectMocks
     private ProfileServiceAdapter adapter;
 
+    private static final UUID USER_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID USER_ID_3 = UUID.fromString("00000000-0000-0000-0000-000000000003");
+
     @Test
     @DisplayName("successful Feign call → returns Optional with ProfileDto")
     void successfulCall_returnsProfile() {
-        ProfileDto dto = new ProfileDto(1L, "jdoe", "jdoe@example.com", "John Doe", "STUDENT");
-        when(profileServiceClient.getUserProfile(1L)).thenReturn(dto);
+        ProfileDto dto = new ProfileDto(USER_ID_1, "jdoe", "jdoe@example.com", "John Doe", "STUDENT");
+        when(profileServiceClient.getUserProfile(USER_ID_1)).thenReturn(dto);
 
-        Optional<ProfileDto> result = adapter.getUserProfile(1L);
+        Optional<ProfileDto> result = adapter.getUserProfile(USER_ID_1);
 
         assertThat(result).isPresent();
-        assertThat(result.get().getUserId()).isEqualTo(1L);
+        assertThat(result.get().getUserId()).isEqualTo(USER_ID_1);
         assertThat(result.get().getUsername()).isEqualTo("jdoe");
     }
 
     @Test
     @DisplayName("profile-service returns null → returns empty Optional")
     void nullResponse_returnsEmpty() {
-        when(profileServiceClient.getUserProfile(2L)).thenReturn(null);
+        when(profileServiceClient.getUserProfile(USER_ID_2)).thenReturn(null);
 
-        Optional<ProfileDto> result = adapter.getUserProfile(2L);
+        Optional<ProfileDto> result = adapter.getUserProfile(USER_ID_2);
 
         assertThat(result).isEmpty();
     }
@@ -51,10 +56,10 @@ class ProfileServiceAdapterTest {
     @Test
     @DisplayName("FeignException (service unavailable) → returns empty Optional")
     void feignException_returnsEmpty() {
-        when(profileServiceClient.getUserProfile(3L))
+        when(profileServiceClient.getUserProfile(USER_ID_3))
                 .thenThrow(mock(FeignException.class));
 
-        Optional<ProfileDto> result = adapter.getUserProfile(3L);
+        Optional<ProfileDto> result = adapter.getUserProfile(USER_ID_3);
 
         assertThat(result).isEmpty();
     }

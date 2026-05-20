@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -27,11 +29,14 @@ class SocialEventConsumerTest {
     @InjectMocks
     private SocialEventConsumer consumer;
 
+    private static final UUID USER_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
     @Test
     @DisplayName("valid social event → creates STUDY_SESSION_INVITE notification")
     void validEvent_createsStudySessionInvite() {
         SocialEvent event = SocialEvent.builder()
-                .userId(1L).type("STUDY_SESSION_INVITE").title("Study group tonight")
+                .userId(USER_ID_1).type("STUDY_SESSION_INVITE").title("Study group tonight")
                 .message("Join us at 8pm").severity("LOW").relatedEntityId(20L)
                 .build();
 
@@ -42,7 +47,7 @@ class SocialEventConsumerTest {
         verify(createNotificationPort).create(captor.capture());
 
         CreateNotificationRequest req = captor.getValue();
-        assertThat(req.getUserId()).isEqualTo(1L);
+        assertThat(req.getUserId()).isEqualTo(USER_ID_1);
         assertThat(req.getType()).isEqualTo(NotificationType.STUDY_SESSION_INVITE);
         assertThat(req.getSeverity()).isEqualTo(NotificationSeverity.LOW);
         assertThat(req.getTitle()).isEqualTo("Study group tonight");
@@ -53,7 +58,7 @@ class SocialEventConsumerTest {
     @DisplayName("INFO severity → creates notification with INFO severity")
     void infoSeverity_createsNotification() {
         SocialEvent event = SocialEvent.builder()
-                .userId(2L).type("STUDY_SESSION_INVITE").title("Session")
+                .userId(USER_ID_2).type("STUDY_SESSION_INVITE").title("Session")
                 .message("msg").severity("INFO").relatedEntityId(null)
                 .build();
 
@@ -70,7 +75,7 @@ class SocialEventConsumerTest {
     @DisplayName("null severity → event discarded")
     void nullSeverity_eventDiscarded() {
         SocialEvent event = SocialEvent.builder()
-                .userId(1L).type("STUDY_SESSION_INVITE").title("title").message("msg").severity(null)
+                .userId(USER_ID_1).type("STUDY_SESSION_INVITE").title("title").message("msg").severity(null)
                 .build();
 
         consumer.consume(event);
@@ -82,7 +87,7 @@ class SocialEventConsumerTest {
     @DisplayName("unknown severity → event discarded")
     void unknownSeverity_eventDiscarded() {
         SocialEvent event = SocialEvent.builder()
-                .userId(1L).type("STUDY_SESSION_INVITE").title("title").message("msg").severity("EXTREME")
+                .userId(USER_ID_1).type("STUDY_SESSION_INVITE").title("title").message("msg").severity("EXTREME")
                 .build();
 
         consumer.consume(event);

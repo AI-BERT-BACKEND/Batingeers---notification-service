@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -27,11 +29,14 @@ class AcademicEventConsumerTest {
     @InjectMocks
     private AcademicEventConsumer consumer;
 
+    private static final UUID USER_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
     @Test
     @DisplayName("valid academic event → creates LOW_PERFORMANCE_ALERT notification")
     void validEvent_createsLowPerformanceAlert() {
         AcademicEvent event = AcademicEvent.builder()
-                .userId(1L).type("LOW_PERFORMANCE_ALERT")
+                .userId(USER_ID_1).type("LOW_PERFORMANCE_ALERT")
                 .title("Subjects at risk").message("Grade below 3.0").severity("HIGH")
                 .build();
 
@@ -42,7 +47,7 @@ class AcademicEventConsumerTest {
         verify(createNotificationPort).create(captor.capture());
 
         CreateNotificationRequest req = captor.getValue();
-        assertThat(req.getUserId()).isEqualTo(1L);
+        assertThat(req.getUserId()).isEqualTo(USER_ID_1);
         assertThat(req.getType()).isEqualTo(NotificationType.LOW_PERFORMANCE_ALERT);
         assertThat(req.getSeverity()).isEqualTo(NotificationSeverity.HIGH);
         assertThat(req.getTitle()).isEqualTo("Subjects at risk");
@@ -52,7 +57,7 @@ class AcademicEventConsumerTest {
     @DisplayName("MEDIUM severity → creates notification with MEDIUM severity")
     void mediumSeverity_createsNotification() {
         AcademicEvent event = AcademicEvent.builder()
-                .userId(2L).type("LOW_PERFORMANCE_ALERT")
+                .userId(USER_ID_2).type("LOW_PERFORMANCE_ALERT")
                 .title("Warning").message("Grade borderline").severity("MEDIUM")
                 .build();
 
@@ -69,7 +74,7 @@ class AcademicEventConsumerTest {
     @DisplayName("null severity → event discarded")
     void nullSeverity_eventDiscarded() {
         AcademicEvent event = AcademicEvent.builder()
-                .userId(1L).type("LOW_PERFORMANCE_ALERT")
+                .userId(USER_ID_1).type("LOW_PERFORMANCE_ALERT")
                 .title("title").message("msg").severity(null)
                 .build();
 
@@ -82,7 +87,7 @@ class AcademicEventConsumerTest {
     @DisplayName("unknown severity → event discarded")
     void unknownSeverity_eventDiscarded() {
         AcademicEvent event = AcademicEvent.builder()
-                .userId(1L).type("LOW_PERFORMANCE_ALERT")
+                .userId(USER_ID_1).type("LOW_PERFORMANCE_ALERT")
                 .title("title").message("msg").severity("INVALID")
                 .build();
 

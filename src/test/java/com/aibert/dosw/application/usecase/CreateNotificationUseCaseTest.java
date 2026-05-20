@@ -15,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -33,11 +35,13 @@ class CreateNotificationUseCaseTest {
     @InjectMocks
     private CreateNotificationUseCase useCase;
 
+    private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
     @Test
     @DisplayName("debe crear y retornar la notificación correctamente")
     void shouldCreateAndReturnNotification() {
         CreateNotificationRequest request = CreateNotificationRequest.builder()
-                .userId(1L)
+                .userId(USER_ID)
                 .type(NotificationType.OVERLOAD_ALERT)
                 .title("Sobrecarga")
                 .message("Tienes demasiadas tareas")
@@ -45,7 +49,7 @@ class CreateNotificationUseCaseTest {
                 .build();
 
         Notification mapped = Notification.builder()
-                .userId(1L)
+                .userId(USER_ID)
                 .type(NotificationType.OVERLOAD_ALERT)
                 .title("Sobrecarga")
                 .message("Tienes demasiadas tareas")
@@ -54,7 +58,7 @@ class CreateNotificationUseCaseTest {
 
         Notification saved = Notification.builder()
                 .id(1L)
-                .userId(1L)
+                .userId(USER_ID)
                 .type(NotificationType.OVERLOAD_ALERT)
                 .title("Sobrecarga")
                 .message("Tienes demasiadas tareas")
@@ -63,7 +67,7 @@ class CreateNotificationUseCaseTest {
 
         NotificationResponse expected = NotificationResponse.builder()
                 .id(1L)
-                .userId(1L)
+                .userId(USER_ID)
                 .type(NotificationType.OVERLOAD_ALERT)
                 .title("Sobrecarga")
                 .build();

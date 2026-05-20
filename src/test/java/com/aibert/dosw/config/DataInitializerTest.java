@@ -14,6 +14,7 @@ import org.springframework.boot.ApplicationArguments;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -34,12 +35,14 @@ class DataInitializerTest {
     @InjectMocks
     private DataInitializer dataInitializer;
 
+    private static final UUID SEED_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
     @Test
     @DisplayName("skips seed when data already exists")
     void shouldSkipWhenDataAlreadyExists() throws Exception {
-        when(repository.findByUserIdOrderByCreatedAtDesc(1L))
+        when(repository.findByUserIdOrderByCreatedAtDesc(SEED_USER_ID))
                 .thenReturn(List.of(NotificationEntity.builder()
-                        .userId(1L)
+                        .userId(SEED_USER_ID)
                         .type(NotificationType.TASK_REMINDER)
                         .title("existing")
                         .message("already here")
@@ -53,7 +56,7 @@ class DataInitializerTest {
     @Test
     @DisplayName("saves 5 seed notifications when repository is empty")
     void shouldSeedFiveNotificationsWhenEmpty() throws Exception {
-        when(repository.findByUserIdOrderByCreatedAtDesc(1L))
+        when(repository.findByUserIdOrderByCreatedAtDesc(SEED_USER_ID))
                 .thenReturn(Collections.emptyList());
 
         @SuppressWarnings("unchecked")
@@ -73,7 +76,7 @@ class DataInitializerTest {
                         NotificationType.TASK_REMINDER,
                         NotificationType.STUDY_SESSION_INVITE
                 );
-        assertThat(saved).allMatch(n -> n.getUserId().equals(1L));
+        assertThat(saved).allMatch(n -> n.getUserId().equals(SEED_USER_ID));
         assertThat(saved).allMatch(n -> n.getTitle() != null && !n.getTitle().isBlank());
         assertThat(saved).allMatch(n -> n.getMessage() != null && !n.getMessage().isBlank());
     }

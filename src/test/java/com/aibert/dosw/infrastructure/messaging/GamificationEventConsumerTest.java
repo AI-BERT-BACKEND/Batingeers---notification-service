@@ -5,6 +5,7 @@ import com.aibert.dosw.domain.model.notification.NotificationSeverity;
 import com.aibert.dosw.domain.model.notification.NotificationType;
 import com.aibert.dosw.domain.ports.in.CreateNotificationPort;
 import com.aibert.dosw.infrastructure.messaging.event.GamificationEvent;
+import com.aibert.dosw.infrastructure.messaging.event.LevelName;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
@@ -26,14 +29,17 @@ class GamificationEventConsumerTest {
     @InjectMocks
     private GamificationEventConsumer consumer;
 
+    private static final UUID USER_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
     @Test
     @DisplayName("valid level-up event → creates LEVEL_UP notification with INFO severity")
     void validEvent_createsLevelUpNotification() {
         GamificationEvent event = GamificationEvent.builder()
-                .userId(1L)
+                .userId(USER_ID_1)
                 .newLevelNumber(5)
                 .previousLevelNumber(4)
-                .levelName("Scholar")
+                .levelName(LevelName.AVANZADO)
                 .build();
 
         consumer.consume(event);
@@ -43,10 +49,10 @@ class GamificationEventConsumerTest {
         verify(createNotificationPort).create(captor.capture());
 
         CreateNotificationRequest request = captor.getValue();
-        assertThat(request.getUserId()).isEqualTo(1L);
+        assertThat(request.getUserId()).isEqualTo(USER_ID_1);
         assertThat(request.getType()).isEqualTo(NotificationType.LEVEL_UP);
         assertThat(request.getSeverity()).isEqualTo(NotificationSeverity.INFO);
-        assertThat(request.getTitle()).contains("5").contains("Scholar");
+        assertThat(request.getTitle()).contains("5").contains("AVANZADO");
         assertThat(request.getMessage()).contains("4").contains("5");
     }
 
@@ -54,7 +60,7 @@ class GamificationEventConsumerTest {
     @DisplayName("event without levelName → title still contains level number")
     void eventWithoutLevelName_titleContainsLevelNumber() {
         GamificationEvent event = GamificationEvent.builder()
-                .userId(2L)
+                .userId(USER_ID_2)
                 .newLevelNumber(3)
                 .previousLevelNumber(2)
                 .levelName(null)
@@ -77,7 +83,7 @@ class GamificationEventConsumerTest {
                 .userId(null)
                 .newLevelNumber(5)
                 .previousLevelNumber(4)
-                .levelName("Scholar")
+                .levelName(LevelName.AVANZADO)
                 .build();
 
         consumer.consume(event);

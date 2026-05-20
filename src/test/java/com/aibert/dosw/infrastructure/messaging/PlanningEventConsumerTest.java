@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,11 +33,14 @@ class PlanningEventConsumerTest {
     @InjectMocks
     private PlanningEventConsumer consumer;
 
+    private static final UUID USER_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
     @Test
     @DisplayName("STUDY_SUGGESTION event → creates notification with INFO severity")
     void studySuggestionEvent_createsNotification() {
         PlanningEvent event = PlanningEvent.builder()
-                .userId(1L).type("STUDY_SUGGESTION").title("Study Algebra")
+                .userId(USER_ID_1).type("STUDY_SUGGESTION").title("Study Algebra")
                 .message("Priority 0.83").severity("INFO").relatedEntityId(5L)
                 .build();
 
@@ -47,7 +51,7 @@ class PlanningEventConsumerTest {
         verify(createNotificationPort).create(captor.capture());
 
         CreateNotificationRequest req = captor.getValue();
-        assertThat(req.getUserId()).isEqualTo(1L);
+        assertThat(req.getUserId()).isEqualTo(USER_ID_1);
         assertThat(req.getType()).isEqualTo(NotificationType.STUDY_SUGGESTION);
         assertThat(req.getSeverity()).isEqualTo(NotificationSeverity.INFO);
         assertThat(req.getRelatedEntityId()).isEqualTo(5L);
@@ -57,7 +61,7 @@ class PlanningEventConsumerTest {
     @DisplayName("OVERLOAD_ALERT event from planning → creates notification")
     void overloadAlertEvent_createsNotification() {
         PlanningEvent event = PlanningEvent.builder()
-                .userId(2L).type("OVERLOAD_ALERT").title("Overloaded schedule")
+                .userId(USER_ID_2).type("OVERLOAD_ALERT").title("Overloaded schedule")
                 .message("Reduce tasks").severity("HIGH").relatedEntityId(null)
                 .build();
 
@@ -85,7 +89,7 @@ class PlanningEventConsumerTest {
     @DisplayName("invalid events → no notification created")
     void invalidEvent_eventDiscarded(String type, String severity, String scenario) {
         PlanningEvent event = PlanningEvent.builder()
-                .userId(1L).type(type).title("title").message("msg").severity(severity)
+                .userId(USER_ID_1).type(type).title("title").message("msg").severity(severity)
                 .build();
 
         consumer.consume(event);
