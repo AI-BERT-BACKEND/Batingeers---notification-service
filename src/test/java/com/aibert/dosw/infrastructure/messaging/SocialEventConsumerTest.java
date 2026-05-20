@@ -78,6 +78,23 @@ class SocialEventConsumerTest {
     }
 
     @Test
+    @DisplayName("NEW_CHAT_MESSAGE event → creates notification")
+    void newChatMessage_createsNotification() {
+        SocialEvent event = SocialEvent.builder()
+                .userId(USER_ID_1).type("NEW_CHAT_MESSAGE").title("Nuevo mensaje")
+                .message("Tienes un mensaje nuevo").severity("INFO").relatedEntityId(RELATED_ID)
+                .build();
+
+        consumer.consume(event);
+
+        ArgumentCaptor<CreateNotificationRequest> captor =
+                ArgumentCaptor.forClass(CreateNotificationRequest.class);
+        verify(createNotificationPort).create(captor.capture());
+
+        assertThat(captor.getValue().getType()).isEqualTo(NotificationType.NEW_CHAT_MESSAGE);
+    }
+
+    @Test
     @DisplayName("CONNECTION_REQUEST_ACCEPTED event → creates notification")
     void connectionRequestAccepted_createsNotification() {
         SocialEvent event = SocialEvent.builder()
