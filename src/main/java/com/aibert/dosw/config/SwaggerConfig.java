@@ -37,7 +37,8 @@ public class SwaggerConfig {
                                 for the authenticated user.
                                 - **Kafka consumers (event-driven):** listens on five independent topics — \
                                 `task.events` (OVERLOAD_ALERT, TASK_REMINDER), `academic.events` (LOW_PERFORMANCE_ALERT), \
-                                `planning.events` (STUDY_SUGGESTION, OVERLOAD_ALERT), `social.events` (STUDY_SESSION_INVITE), \
+                                `planning.events` (STUDY_SUGGESTION, OVERLOAD_ALERT), \
+                                `social.events` (STUDY_SESSION_INVITE, CONNECTION_REQUEST_RECEIVED, CONNECTION_REQUEST_ACCEPTED, NEW_CHAT_MESSAGE), \
                                 and `gamification.events` (LEVEL_UP). Each source microservice publishes events; \
                                 the notification service persists them without making synchronous calls.
                                 - **Profile integration (Feign):** connects to profile-service \
