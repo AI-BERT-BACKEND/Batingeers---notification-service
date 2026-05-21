@@ -28,7 +28,8 @@ public class CreateNotificationRequest {
             example = "OVERLOAD_ALERT",
             allowableValues = {"OVERLOAD_ALERT", "LOW_PERFORMANCE_ALERT", "STUDY_SUGGESTION",
                                "TASK_REMINDER", "STUDY_SESSION_INVITE",
-                               "CONNECTION_REQUEST_RECEIVED", "CONNECTION_REQUEST_ACCEPTED", "LEVEL_UP"})
+                               "CONNECTION_REQUEST_RECEIVED", "CONNECTION_REQUEST_ACCEPTED",
+                               "NEW_CHAT_MESSAGE", "LEVEL_UP"})
     private NotificationType type;
 
     @NotBlank(message = "Title is required")
