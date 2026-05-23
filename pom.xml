@@ -27,6 +27,12 @@
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.build.directory}/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.exclusions>
+            **/mapper/**,**/adapters/**
+        </sonar.coverage.exclusions>
+        <sonar.exclusions>
+            **/mapper/**,**/adapters/**
+        </sonar.exclusions>
     </properties>
 
     <dependencyManagement>
@@ -200,6 +206,12 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.11</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/mapper/**</exclude>
+                        <exclude>**/adapters/**</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
