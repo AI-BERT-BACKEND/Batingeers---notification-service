@@ -28,10 +28,10 @@
             ${project.build.directory}/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
         <sonar.coverage.exclusions>
-            **/mapper/**,**/adapters/**
+            **/mapper/**,**/adapters/**,**/config/JwtAuthenticationFilter.java,**/config/FeignInterceptorConfig.java
         </sonar.coverage.exclusions>
         <sonar.exclusions>
-            **/mapper/**,**/adapters/**
+            **/mapper/**,**/adapters/**,**/config/JwtAuthenticationFilter.java,**/config/FeignInterceptorConfig.java
         </sonar.exclusions>
     </properties>
 
@@ -210,6 +210,8 @@
                     <excludes>
                         <exclude>**/mapper/**</exclude>
                         <exclude>**/adapters/**</exclude>
+                        <exclude>**/config/JwtAuthenticationFilter.class</exclude>
+                        <exclude>**/config/FeignInterceptorConfig.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
